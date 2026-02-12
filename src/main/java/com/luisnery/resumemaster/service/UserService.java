@@ -1,11 +1,11 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.User;
 import com.luisnery.resumemaster.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -19,8 +19,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public User createUser(User user) {
@@ -31,8 +31,8 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        if(!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("User not found with id: " + id);
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
