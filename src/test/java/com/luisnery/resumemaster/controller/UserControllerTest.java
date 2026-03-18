@@ -113,7 +113,22 @@ class UserControllerTest {
                         "Nery");
         //Act + Assert
         mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteUserById_success() throws Exception {
+        //Arrange
+        doNothing().when(userService).deleteUser(1L);
+        //Act+Assert
+        mockMvc.perform(delete("/api/users/1")).andExpect(status().isNoContent());
+    }
+    @Test
+    void deleteUserById_userNotFound_throwsException() throws Exception {
+        //Arrange
+        doThrow(new UserNotFoundException(1L)).when(userService).deleteUser(1L);
+        //Act+Assert
+        mockMvc.perform(delete("/api/users/1")).andExpect(status().isNotFound());
     }
 }
