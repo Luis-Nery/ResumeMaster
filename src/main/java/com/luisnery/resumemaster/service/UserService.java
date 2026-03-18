@@ -1,5 +1,6 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.User;
 import com.luisnery.resumemaster.repository.UserRepository;
@@ -30,11 +31,29 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User updateUser(Long id, UpdateUserRequest updateUserRequest) {
+        User tempUser = getUserById(id);
+        if (updateUserRequest.getEmail() != null && !updateUserRequest.getEmail().isBlank()) {
+            tempUser.setEmail(updateUserRequest.getEmail());
+        }
+        if (updateUserRequest.getPassword() != null && !updateUserRequest.getPassword().isBlank()) {
+            tempUser.setPasswordHash(updateUserRequest.getPassword());
+        }
+        if (updateUserRequest.getFirstName() != null && !updateUserRequest.getFirstName().isBlank()) {
+            tempUser.setFirstName(updateUserRequest.getFirstName());
+        }
+        if (updateUserRequest.getLastName() != null && !updateUserRequest.getLastName().isBlank()) {
+            tempUser.setLastName(updateUserRequest.getLastName());
+        }
+        return userRepository.save(tempUser);
+    }
+
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException(id);
         }
         userRepository.deleteById(id);
     }
+
 
 }

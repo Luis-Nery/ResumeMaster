@@ -1,6 +1,7 @@
 package com.luisnery.resumemaster.controller;
 
 import com.luisnery.resumemaster.dto.CreateUserRequest;
+import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.model.User;
 import com.luisnery.resumemaster.service.UserService;
@@ -46,6 +47,11 @@ public class UserController {
 
         UserResponse userResponse = UserResponse.fromEntity(createdUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,@Valid @RequestBody UpdateUserRequest request) {
+        User updatedUser = userService.updateUser(id,request);
+        return ResponseEntity.ok(UserResponse.fromEntity(updatedUser));
     }
 
     @DeleteMapping("/{id}")

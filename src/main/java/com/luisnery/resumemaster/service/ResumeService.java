@@ -1,5 +1,6 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.dto.UpdateResumeRequest;
 import com.luisnery.resumemaster.exception.ResumeNotFoundException;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.Resume;
@@ -35,6 +36,17 @@ public class ResumeService {
             throw new UserNotFoundException(resume.getUser().getId());
         }
         return resumeRepository.save(resume);
+    }
+
+    public Resume updateResume(Long id, UpdateResumeRequest updateResumeRequest) {
+        Resume tempResume = getById(id);
+        if (updateResumeRequest.getTitle() != null && !updateResumeRequest.getTitle().isBlank()) {
+            tempResume.setTitle(updateResumeRequest.getTitle());
+        }
+        if (updateResumeRequest.getContent() != null && !updateResumeRequest.getContent().isBlank()) {
+            tempResume.setContent(updateResumeRequest.getContent());
+        }
+        return resumeRepository.save(tempResume);
     }
 
     public void deleteResume(Long id) {
