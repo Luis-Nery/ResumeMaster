@@ -2,14 +2,13 @@ package com.luisnery.resumemaster.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luisnery.resumemaster.dto.CreateResumeRequest;
-import com.luisnery.resumemaster.dto.CreateUserRequest;
+
 import com.luisnery.resumemaster.dto.ResumeResponse;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.exception.ResumeNotFoundException;
 import com.luisnery.resumemaster.model.Resume;
 import com.luisnery.resumemaster.model.User;
-import com.luisnery.resumemaster.repository.ResumeRepository;
-import com.luisnery.resumemaster.repository.UserRepository;
+
 import com.luisnery.resumemaster.service.ResumeService;
 import com.luisnery.resumemaster.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
