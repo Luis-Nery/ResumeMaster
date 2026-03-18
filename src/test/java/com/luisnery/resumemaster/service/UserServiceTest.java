@@ -1,5 +1,6 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.User;
 import com.luisnery.resumemaster.repository.UserRepository;
@@ -95,6 +96,32 @@ class UserServiceTest {
         //No acting here
         //Assert only
         assertThatThrownBy(() -> userService.createUser(fakeUser)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void updateUser_success_returnsUpdatedUser() {
+        // Arrange
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFirstName("Updated");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(fakeUser));
+        when(userRepository.save(fakeUser)).thenReturn(fakeUser);
+
+        // Act
+        User result = userService.updateUser(1L, request);
+
+        // Assert
+        assertThat(result.getFirstName()).isEqualTo("Updated");
+    }
+
+    @Test
+    void updateUser_userNotFound_throwsException() {
+        //Arrange
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setFirstName("Updated");
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        //Assert only
+        assertThatThrownBy(() -> userService.updateUser(1L, request)).isInstanceOf(UserNotFoundException.class);
     }
 
     @Test

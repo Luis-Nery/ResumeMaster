@@ -2,6 +2,7 @@ package com.luisnery.resumemaster.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luisnery.resumemaster.dto.CreateUserRequest;
+import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.service.UserService;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -118,12 +120,37 @@ class UserControllerTest {
     }
 
     @Test
+    void updateUser_success_returnsUpdatedUser() throws Exception {
+        //Arrange
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest
+                (null, null, "Updated", null);
+        when(userService.updateUser(eq(1L), any(UpdateUserRequest.class))).thenReturn(fakeUser);
+        //Act+Assert
+        mockMvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateUserRequest)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void updateUser_userNotFound_throwsException() throws Exception {
+        //Arrange
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest
+                (null, null, "Updated", null);
+        when(userService.updateUser(eq(1L), any(UpdateUserRequest.class))).thenThrow(new UserNotFoundException(1L));
+        //Act+Assert
+        mockMvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateUserRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void deleteUserById_success() throws Exception {
         //Arrange
         doNothing().when(userService).deleteUser(1L);
         //Act+Assert
         mockMvc.perform(delete("/api/users/1")).andExpect(status().isNoContent());
     }
+
     @Test
     void deleteUserById_userNotFound_throwsException() throws Exception {
         //Arrange

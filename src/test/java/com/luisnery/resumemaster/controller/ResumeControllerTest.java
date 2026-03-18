@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luisnery.resumemaster.dto.CreateResumeRequest;
 
 import com.luisnery.resumemaster.dto.ResumeResponse;
+import com.luisnery.resumemaster.dto.UpdateResumeRequest;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.exception.ResumeNotFoundException;
 import com.luisnery.resumemaster.model.Resume;
@@ -110,6 +111,7 @@ public class ResumeControllerTest {
                         .content(objectMapper.writeValueAsString(resumeRequest)))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.title").value("Mocked Resume"));
     }
+
     @Test
     void createResume_invalidData_returnsBadRequest() throws Exception {
         //Arrange
@@ -118,16 +120,39 @@ public class ResumeControllerTest {
                 1L);
         //Act+Assert
         mockMvc.perform(post("/api/resumes").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(resumeRequest)))
+                        .content(objectMapper.writeValueAsString(resumeRequest)))
                 .andExpect(status().isBadRequest());
     }
+
     @Test
-    void  deleteResume_success() throws Exception {
+    void updateResume_success() throws Exception {
+        //Arrange
+        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated");
+        when(resumeService.updateResume(eq(1L), any(UpdateResumeRequest.class))).thenReturn(fakeResume);
+        //Act+Assert
+        mockMvc.perform(put("/api/resumes/1").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(resumeRequest))).andExpect(status().isOk());
+    }
+
+    @Test
+    void updateResume_resumeNotFound_throwsException() throws Exception {
+        //Arrange
+        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated");
+        when(resumeService.updateResume(eq(1L), any(UpdateResumeRequest.class)))
+                .thenThrow(new ResumeNotFoundException(1L));
+        //Act+Assert
+        mockMvc.perform(put("/api/resumes/1").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(resumeRequest))).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteResume_success() throws Exception {
         //Arrange
         doNothing().when(resumeService).deleteResume(1L);
         //Act+Assert
         mockMvc.perform(delete("/api/resumes/1")).andExpect(status().isNoContent());
     }
+
     @Test
     void deleteResume_resumeNotFound_throwsException() throws Exception {
         //Arrange

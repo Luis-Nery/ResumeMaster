@@ -1,5 +1,6 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.dto.UpdateResumeRequest;
 import com.luisnery.resumemaster.exception.ResumeNotFoundException;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.Resume;
@@ -106,6 +107,30 @@ public class ResumeServiceTest {
         //Assert
         assertThatThrownBy(() -> resumeService.createResume(fakeResume))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void updateResume_success_returnsSavedResume() {
+        //Arrange
+        UpdateResumeRequest request = new UpdateResumeRequest();
+        request.setTitle("Updated");
+        when(resumeRepository.findById(1L)).thenReturn(Optional.of(fakeResume));
+        when(resumeRepository.save(fakeResume)).thenReturn(fakeResume);
+        //Act
+        Resume tempResume = resumeService.updateResume(1L, request);
+        //Assert
+        assertThat(tempResume.getTitle()).isEqualTo("Updated");
+    }
+
+    @Test
+    void updateResume_userDoesNotExist_throwsException() {
+        //Arrange
+        UpdateResumeRequest request = new UpdateResumeRequest();
+        request.setTitle("Updated");
+        when(resumeRepository.findById(1L)).thenReturn(Optional.empty());
+        //Assert
+        assertThatThrownBy(() -> resumeService.updateResume(1L, request))
+                .isInstanceOf(ResumeNotFoundException.class);
     }
 
     @Test
