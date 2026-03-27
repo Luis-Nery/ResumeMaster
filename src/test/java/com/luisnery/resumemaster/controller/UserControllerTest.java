@@ -6,6 +6,8 @@ import com.luisnery.resumemaster.dto.CreateUserRequest;
 import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
+import com.luisnery.resumemaster.service.JwtService;
+import com.luisnery.resumemaster.service.UserDetailsServiceImpl;
 import com.luisnery.resumemaster.service.UserService;
 import com.luisnery.resumemaster.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,12 @@ class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -91,35 +99,6 @@ class UserControllerTest {
         when(userService.getUserById(99L)).thenThrow(new UserNotFoundException(99L));
         //Act+Assert
         mockMvc.perform(get("/api/users/99")).andExpect(status().isNotFound());
-    }
-
-    @Test
-    void createUser_success_returnsCreatedUser() throws Exception {
-        //Arrange
-        CreateUserRequest request = new CreateUserRequest
-                ("luis@test.com",
-                        "password123",
-                        "Luis",
-                        "Nery");
-        when(userService.createUser(any(User.class))).thenReturn(fakeUser);
-        //Act+Assert
-        mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.email").value("luis@test.com"));
-    }
-
-    @Test
-    void createUser_invalidData_returnsBadRequest() throws Exception {
-        //Arrange
-        CreateUserRequest request = new CreateUserRequest
-                ("",
-                        "password123",
-                        "Luis",
-                        "Nery");
-        //Act + Assert
-        mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

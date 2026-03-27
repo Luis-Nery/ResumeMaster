@@ -11,7 +11,9 @@ import com.luisnery.resumemaster.exception.ResumeNotFoundException;
 import com.luisnery.resumemaster.model.Resume;
 import com.luisnery.resumemaster.model.User;
 
+import com.luisnery.resumemaster.service.JwtService;
 import com.luisnery.resumemaster.service.ResumeService;
+import com.luisnery.resumemaster.service.UserDetailsServiceImpl;
 import com.luisnery.resumemaster.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,11 @@ public class ResumeControllerTest {
     private UserService userService;
     @MockitoBean
     private ResumeService resumeService;
+    @MockitoBean
+    private JwtService jwtService;
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsServiceImpl;
+
     @Autowired
     private ObjectMapper objectMapper;
     private User fakeUser;
