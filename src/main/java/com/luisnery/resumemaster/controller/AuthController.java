@@ -42,8 +42,8 @@ public class AuthController {
         user.setPasswordHash(passwordEncoder.encode(createUserRequest.getPassword()));
         user.setFirstName(createUserRequest.getFirstName());
         user.setLastName(createUserRequest.getLastName());
-        userService.createUser(user);
-        return ResponseEntity.ok(new AuthResponse(jwtService.generateToken(user)));
+        User savedUser = userService.createUser(user);
+        return ResponseEntity.ok(new AuthResponse(jwtService.generateToken(savedUser),savedUser.getId()));
     }
 
     @PostMapping("/login")
@@ -54,6 +54,6 @@ public class AuthController {
         );
         User user = (User) userDetailsService.loadUserByUsername(authRequest.getEmail());
         String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token,user.getId()));
     }
 }
