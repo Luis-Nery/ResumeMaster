@@ -49,7 +49,6 @@ const DashboardPage = () => {
         <div>
             <div>
                 <h1>My Resumes</h1>
-                <button onClick={handleLogout}>Logout</button>
             </div>
 
             {error && <p>{error}</p>}
