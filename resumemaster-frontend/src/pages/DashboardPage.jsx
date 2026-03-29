@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import {useState, useEffect} from 'react'
+import {useNavigate} from 'react-router-dom'
+import {useAuth} from '../context/AuthContext'
+import DeleteConfirmModal from '../components/DeleteConfirmModal'
 import api from '../services/api'
 
 const DashboardPage = () => {
     const [resumes, setResumes] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [deleteTarget, setDeleteTarget] = useState(null)
 
-    const { logout, userId } = useAuth()
+    const {logout, userId} = useAuth()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -31,10 +33,11 @@ const DashboardPage = () => {
         navigate('/login')
     }
 
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         try {
-            await api.delete(`/resumes/${id}`)
-            setResumes(resumes.filter(resume => resume.id !== id))
+            await api.delete(`/resumes/${deleteTarget.id}`)
+            setResumes(resumes.filter(resume => resume.id !== deleteTarget.id))
+            setDeleteTarget(null)
         } catch (err) {
             setError('Failed to delete resume')
         }
@@ -62,16 +65,24 @@ const DashboardPage = () => {
                     {resumes.map(resume => (
                         <div key={resume.id}>
                             <h3>{resume.title}</h3>
-                            <p>{resume.content}</p>
+                            <p>Created: {new Date(resume.createdAt).toLocaleDateString()}</p>
+                            <p>Last Modified: {new Date(resume.lastModified).toLocaleDateString()}</p>
                             <button onClick={() => navigate(`/resume/${resume.id}`)}>
                                 Edit
                             </button>
-                            <button onClick={() => handleDelete(resume.id)}>
+                            <button onClick={() => setDeleteTarget({id: resume.id, title: resume.title})}>
                                 Delete
                             </button>
                         </div>
                     ))}
                 </div>
+            )}
+            {deleteTarget && (
+                <DeleteConfirmModal
+                    resumeTitle={deleteTarget.title}
+                    onConfirm={handleDelete}
+                    onCancel={() => setDeleteTarget(null)}
+                />
             )}
         </div>
     )
