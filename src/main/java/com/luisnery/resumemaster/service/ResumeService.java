@@ -46,6 +46,12 @@ public class ResumeService {
         if (updateResumeRequest.getContent() != null && !updateResumeRequest.getContent().isBlank()) {
             tempResume.setContent(updateResumeRequest.getContent());
         }
+        if (updateResumeRequest.getIsComplete() != null) {
+            tempResume.setComplete(updateResumeRequest.getIsComplete());
+        }
+        if (updateResumeRequest.getCurrentStep() != null) {
+            tempResume.setCurrentStep(updateResumeRequest.getCurrentStep());
+        }
         return resumeRepository.save(tempResume);
     }
 

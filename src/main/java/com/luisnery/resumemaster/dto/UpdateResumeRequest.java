@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateResumeRequest {
-    private  String title;
+    private String title;
     private String content;
+    private Boolean isComplete;
+    private Integer currentStep;
 }

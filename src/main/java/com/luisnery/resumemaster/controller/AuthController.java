@@ -40,8 +40,6 @@ public class AuthController {
         User user = new User();
         user.setEmail(createUserRequest.getEmail());
         user.setPasswordHash(passwordEncoder.encode(createUserRequest.getPassword()));
-        user.setFirstName(createUserRequest.getFirstName());
-        user.setLastName(createUserRequest.getLastName());
         User savedUser = userService.createUser(user);
         return ResponseEntity.ok(new AuthResponse(jwtService.generateToken(savedUser),savedUser.getId()));
     }

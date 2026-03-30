@@ -31,6 +31,12 @@ public class Resume {
     @UpdateTimestamp
     private LocalDateTime lastModified;
 
+    @Column(nullable = false)
+    private boolean isComplete = false;
+
+    @Column(nullable = false)
+    private int currentStep = 1;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

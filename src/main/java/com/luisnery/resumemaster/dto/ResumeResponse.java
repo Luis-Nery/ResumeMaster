@@ -17,13 +17,19 @@ public class ResumeResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastModified;
     private UserResponse user;
+    private boolean isComplete;
+    private int currentStep;
 
     public static ResumeResponse fromEntity(Resume resume) {
-        return new ResumeResponse(resume.getId(),
+        return new ResumeResponse(
+                resume.getId(),
                 resume.getTitle(),
                 resume.getContent(),
                 resume.getCreatedAt(),
                 resume.getLastModified(),
-                UserResponse.fromEntity(resume.getUser()));
+                UserResponse.fromEntity(resume.getUser()),
+                resume.isComplete(),
+                resume.getCurrentStep()
+        );
     }
 }
