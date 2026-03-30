@@ -1,4 +1,11 @@
-const ClassicTemplate = ({resumeData, accentColor = '#1a1a1a', font = 'Georgia, serif', fontSizes, padding}) => {
+const ClassicTemplate = ({
+                             resumeData,
+                             accentColor = '#1a1a1a',
+                             font = 'Georgia, serif',
+                             fontSizes,
+                             padding,
+                             sectionSpacing
+                         }) => {
     const {personalInfo, summary, experience, education, skills} = resumeData
 
     const fs = {
@@ -31,7 +38,7 @@ const ClassicTemplate = ({resumeData, accentColor = '#1a1a1a', font = 'Georgia, 
             padding: padding || '48px 56px',
             boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
             borderRadius: '4px',
-            minHeight: '900px',
+            minHeight: '1122px',
             color: '#1a1a1a',
             fontSize: fs.base,
             wordBreak: 'break-word',
@@ -73,7 +80,7 @@ const ClassicTemplate = ({resumeData, accentColor = '#1a1a1a', font = 'Georgia, 
 
             {/* Summary */}
             {summary && (
-                <div style={{marginBottom: '24px'}}>
+                <div style={{marginBottom: sectionSpacing || '24px'}}>
                     <h2 style={sectionHeader}>Professional Summary</h2>
                     <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>
                         {summary}
@@ -83,7 +90,7 @@ const ClassicTemplate = ({resumeData, accentColor = '#1a1a1a', font = 'Georgia, 
 
             {/* Experience */}
             {experience.some(exp => exp.company || exp.title) && (
-                <div style={{marginBottom: '24px'}}>
+                <div style={{marginBottom: sectionSpacing || '24px'}}>
                     <h2 style={sectionHeader}>Work Experience</h2>
                     {experience.filter(exp => exp.company || exp.title).map(exp => (
                         <div key={exp.id} style={{marginBottom: '16px'}}>
@@ -118,7 +125,7 @@ const ClassicTemplate = ({resumeData, accentColor = '#1a1a1a', font = 'Georgia, 
 
             {/* Education */}
             {education.some(edu => edu.school || edu.degree) && (
-                <div style={{marginBottom: '24px'}}>
+                <div style={{marginBottom: sectionSpacing || '24px'}}>
                     <h2 style={sectionHeader}>Education</h2>
                     {education.filter(edu => edu.school || edu.degree).map(edu => (
                         <div key={edu.id} style={{marginBottom: '14px'}}>

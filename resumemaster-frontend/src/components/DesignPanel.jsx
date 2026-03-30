@@ -36,6 +36,12 @@ const paddingOptions = [
     { id: 'relaxed', name: 'Airy', description: 'More whitespace' },
 ]
 
+const sectionSpacingOptions = [
+    { id: 'tight', name: 'Tight', description: 'Compact sections' },
+    { id: 'normal', name: 'Normal', description: 'Balanced sections' },
+    { id: 'loose', name: 'Loose', description: 'Spacious sections' },
+]
+
 const fontSizeOptions = [
     { id: 'small', name: 'Small', size: '12px' },
     { id: 'medium', name: 'Medium', size: '14px' },
@@ -181,7 +187,6 @@ const DesignPanel = ({ resumeData, onUpdate }) => {
                                 </div>
                             ))}
                         </div>
-
                         <p style={{ fontSize: '12px', color: '#8b8ba7', marginBottom: '12px' }}>Font Size</p>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {fontSizeOptions.map(s => (
@@ -234,7 +239,6 @@ const DesignPanel = ({ resumeData, onUpdate }) => {
                                 />
                             ))}
                         </div>
-
                         <p style={{ fontSize: '12px', color: '#8b8ba7', marginBottom: '8px' }}>Custom Color</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <input
@@ -262,7 +266,7 @@ const DesignPanel = ({ resumeData, onUpdate }) => {
                 {activeTab === 'spacing' && (
                     <div>
                         <p style={{ fontSize: '12px', color: '#8b8ba7', marginBottom: '12px' }}>Page Padding</p>
-                        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
                             {paddingOptions.map(p => (
                                 <div
                                     key={p.id}
@@ -278,7 +282,6 @@ const DesignPanel = ({ resumeData, onUpdate }) => {
                                         transition: 'all 0.2s ease',
                                     }}
                                 >
-                                    {/* Visual padding indicator */}
                                     <div style={{
                                         width: '100%',
                                         height: '40px',
@@ -290,18 +293,55 @@ const DesignPanel = ({ resumeData, onUpdate }) => {
                                         justifyContent: 'center',
                                         padding: p.id === 'compact' ? '2px' : p.id === 'normal' ? '6px' : '10px',
                                     }}>
-                                        <div style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: '#f3f4f6',
-                                            borderRadius: '2px',
-                                        }} />
+                                        <div style={{ width: '100%', height: '100%', backgroundColor: '#f3f4f6', borderRadius: '2px' }} />
                                     </div>
                                     <p style={{ fontSize: '12px', fontWeight: '600', color: resumeData.padding === p.id ? '#a78bfa' : '#f0f0ff', margin: '0 0 2px 0' }}>
                                         {p.name}
                                     </p>
                                     <p style={{ fontSize: '11px', color: '#8b8ba7', margin: 0 }}>
                                         {p.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <p style={{ fontSize: '12px', color: '#8b8ba7', marginBottom: '12px' }}>Section Spacing</p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {sectionSpacingOptions.map(s => (
+                                <div
+                                    key={s.id}
+                                    onClick={() => onUpdate('sectionSpacing', s.id)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        border: `2px solid ${resumeData.sectionSpacing === s.id ? '#7c3aed' : '#2a2a3a'}`,
+                                        backgroundColor: resumeData.sectionSpacing === s.id ? '#7c3aed11' : '#0d0d14',
+                                        textAlign: 'center',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '100%',
+                                        height: '40px',
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                        marginBottom: '8px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-around',
+                                        padding: s.id === 'tight' ? '2px 4px' : s.id === 'normal' ? '5px 4px' : '9px 4px',
+                                    }}>
+                                        {[1, 2, 3].map(i => (
+                                            <div key={i} style={{ height: '2px', backgroundColor: '#e5e5e5', borderRadius: '1px' }} />
+                                        ))}
+                                    </div>
+                                    <p style={{ fontSize: '12px', fontWeight: '600', color: resumeData.sectionSpacing === s.id ? '#a78bfa' : '#f0f0ff', margin: '0 0 2px 0' }}>
+                                        {s.name}
+                                    </p>
+                                    <p style={{ fontSize: '11px', color: '#8b8ba7', margin: 0 }}>
+                                        {s.description}
                                     </p>
                                 </div>
                             ))}

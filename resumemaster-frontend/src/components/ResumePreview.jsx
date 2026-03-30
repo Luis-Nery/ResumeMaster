@@ -14,6 +14,12 @@ const paddingMap = {
     relaxed: '64px 72px',
 }
 
+const sectionSpacingMap = {
+    tight: '16px',
+    normal: '32px',
+    loose: '48px',
+}
+
 const ResumePreview = ({ resumeData }) => {
     const {
         template = 'classic',
@@ -29,6 +35,7 @@ const ResumePreview = ({ resumeData }) => {
         font,
         fontSizes: fontSizeMap[fontSize] || fontSizeMap.medium,
         padding: paddingMap[padding] || paddingMap.normal,
+        sectionSpacing: sectionSpacingMap[resumeData.sectionSpacing] || '32px',
     }
 
     const renderTemplate = () => {

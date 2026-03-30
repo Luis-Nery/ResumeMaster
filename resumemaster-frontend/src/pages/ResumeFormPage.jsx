@@ -63,6 +63,7 @@ const emptyResumeData = {
     fontSize: 'medium',
     padding: 'normal',
     title: '',
+    sectionSpacing: 'normal',
     personalInfo: {
         firstName: '',
         lastName: '',

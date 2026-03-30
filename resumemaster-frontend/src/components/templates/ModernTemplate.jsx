@@ -1,4 +1,4 @@
-const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sans-serif', fontSizes, padding }) => {
+const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sans-serif', fontSizes, padding, sectionSpacing }) => {
     const { personalInfo, summary, experience, education, skills } = resumeData
 
     const fs = {
@@ -9,17 +9,21 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         label: fontSizes?.label || '10px',
     }
 
+    const filteredExperience = experience.filter(e => e.company || e.title)
+    const filteredEducation = education.filter(e => e.school || e.degree)
+
     return (
         <div style={{
             fontFamily: font,
-            backgroundColor: 'white',
+            background: `linear-gradient(to right, ${accentColor} 35%, white 35%)`,
             width: '100%',
             maxWidth: '700px',
             margin: '0 auto',
             boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
             borderRadius: '4px',
-            minHeight: '900px',
+            minHeight: '1122px',
             display: 'flex',
+            alignItems: 'stretch',
             fontSize: fs.base,
             wordBreak: 'break-word',
             overflowWrap: 'break-word',
@@ -27,11 +31,11 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
             {/* LEFT SIDEBAR */}
             <div style={{
                 width: '35%',
-                backgroundColor: accentColor,
                 padding: '40px 24px',
                 color: 'white',
                 flexShrink: 0,
             }}>
+                {/* Name */}
                 <div style={{ marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
                     <h1 style={{
                         fontSize: fs.title,
@@ -45,8 +49,16 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                     </h1>
                 </div>
 
+                {/* Contact */}
                 <div style={{ marginBottom: '28px' }}>
-                    <p style={{ fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.6)', marginBottom: '10px' }}>
+                    <p style={{
+                        fontSize: fs.label,
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                        color: 'rgba(255,255,255,0.6)',
+                        marginBottom: '10px',
+                    }}>
                         Contact
                     </p>
                     {personalInfo.email && (
@@ -71,31 +83,37 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                     )}
                 </div>
 
+                {/* Skills */}
                 {skills.some(skill => skill) && (
                     <div>
-                        <p style={{ fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.6)', marginBottom: '10px' }}>
+                        <p style={{
+                            fontSize: fs.label,
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.12em',
+                            color: 'rgba(255,255,255,0.6)',
+                            marginBottom: '10px',
+                        }}>
                             Skills
                         </p>
-                        {skills.filter(Boolean).map((skill, idx) => (
-                            <div key={idx} style={{
-                                backgroundColor: 'rgba(255,255,255,0.15)',
-                                borderRadius: '4px',
-                                padding: '4px 10px',
-                                fontSize: fs.small,
-                                color: 'white',
-                                marginBottom: '6px',
-                            }}>
-                                {skill}
-                            </div>
-                        ))}
+                        <p style={{
+                            fontSize: fs.small,
+                            color: 'rgba(255,255,255,0.9)',
+                            margin: 0,
+                            lineHeight: '2',
+                        }}>
+                            {skills.filter(Boolean).join(' · ')}
+                        </p>
                     </div>
                 )}
             </div>
 
             {/* RIGHT CONTENT */}
             <div style={{ flex: 1, padding: padding || '40px 32px' }}>
+
+                {/* Summary */}
                 {summary && (
-                    <div style={{ marginBottom: '24px' }}>
+                    <div style={{ marginBottom: sectionSpacing || '24px' }}>
                         <h2 style={{
                             fontSize: fs.label,
                             fontWeight: '700',
@@ -113,8 +131,9 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                     </div>
                 )}
 
-                {experience.some(exp => exp.company || exp.title) && (
-                    <div style={{ marginBottom: '24px' }}>
+                {/* Experience */}
+                {filteredExperience.length > 0 && (
+                    <div style={{ marginBottom: sectionSpacing || '24px' }}>
                         <h2 style={{
                             fontSize: fs.label,
                             fontWeight: '700',
@@ -126,33 +145,37 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                         }}>
                             Experience
                         </h2>
-                        {experience.filter(exp => exp.company || exp.title).map(exp => (
-                            <div key={exp.id} style={{
-                                marginBottom: '16px',
-                                paddingLeft: '12px',
-                                borderLeft: `3px solid ${accentColor}`,
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
-                                    <strong style={{ fontSize: fs.name, color: '#1a1a1a' }}>{exp.title}</strong>
-                                    <span style={{ fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px' }}>
-                                        {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
-                                    </span>
+                        {filteredExperience.map((exp, idx) => {
+                            const isLast = idx === filteredExperience.length - 1
+                            return (
+                                <div key={exp.id} style={{
+                                    marginBottom: isLast ? '0' : '16px',
+                                    paddingLeft: '12px',
+                                    borderLeft: `3px solid ${accentColor}`,
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
+                                        <strong style={{ fontSize: fs.name, color: '#1a1a1a' }}>{exp.title}</strong>
+                                        <span style={{ fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px' }}>
+                                            {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: fs.small, color: accentColor, fontWeight: '600', marginBottom: '4px' }}>
+                                        {exp.company}
+                                    </div>
+                                    {exp.description && (
+                                        <p style={{ fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: 0 }}>
+                                            {exp.description}
+                                        </p>
+                                    )}
                                 </div>
-                                <div style={{ fontSize: fs.small, color: accentColor, fontWeight: '600', marginBottom: '4px' }}>
-                                    {exp.company}
-                                </div>
-                                {exp.description && (
-                                    <p style={{ fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: 0 }}>
-                                        {exp.description}
-                                    </p>
-                                )}
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 )}
 
-                {education.some(edu => edu.school || edu.degree) && (
-                    <div>
+                {/* Education */}
+                {filteredEducation.length > 0 && (
+                    <div style={{ marginBottom: sectionSpacing || '24px' }}>
                         <h2 style={{
                             fontSize: fs.label,
                             fontWeight: '700',
@@ -164,23 +187,26 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                         }}>
                             Education
                         </h2>
-                        {education.filter(edu => edu.school || edu.degree).map(edu => (
-                            <div key={edu.id} style={{
-                                marginBottom: '14px',
-                                paddingLeft: '12px',
-                                borderLeft: `3px solid ${accentColor}`,
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
-                                    <strong style={{ fontSize: fs.name, color: '#1a1a1a' }}>{edu.school}</strong>
-                                    <span style={{ fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px' }}>
-                                        {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
-                                    </span>
+                        {filteredEducation.map((edu, idx) => {
+                            const isLast = idx === filteredEducation.length - 1
+                            return (
+                                <div key={edu.id} style={{
+                                    marginBottom: isLast ? '0' : '14px',
+                                    paddingLeft: '12px',
+                                    borderLeft: `3px solid ${accentColor}`,
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
+                                        <strong style={{ fontSize: fs.name, color: '#1a1a1a' }}>{edu.school}</strong>
+                                        <span style={{ fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px' }}>
+                                            {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: fs.base, color: '#666' }}>
+                                        {[edu.degree, edu.field].filter(Boolean).join(' in ')}
+                                    </div>
                                 </div>
-                                <div style={{ fontSize: fs.base, color: '#666' }}>
-                                    {[edu.degree, edu.field].filter(Boolean).join(' in ')}
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 )}
             </div>
