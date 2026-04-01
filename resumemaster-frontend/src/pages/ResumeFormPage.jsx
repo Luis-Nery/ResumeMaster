@@ -4,6 +4,7 @@ import {useAuth} from '../context/AuthContext'
 import api from '../services/api'
 import ResumePreview from '../components/ResumePreview'
 import DesignPanel from '../components/DesignPanel'
+import AiPanel from '../components/AiPanel'
 
 const inputStyle = {
     backgroundColor: '#0d0d14',
@@ -246,7 +247,7 @@ const ResumeFormPage = () => {
         const options = {
             margin: 0,
             filename,
-            image: { type: 'jpeg', quality: 1.0 },
+            image: {type: 'jpeg', quality: 1.0},
             html2canvas: {
                 scale: 2,
                 useCORS: true,
@@ -811,6 +812,7 @@ const ResumeFormPage = () => {
                         {[
                             {id: 'write', label: '✏️ Write'},
                             {id: 'design', label: '🎨 Design'},
+                            {id: 'ai', label: '✨ AI'},
                         ].map(m => (
                             <button
                                 key={m.id}
@@ -967,12 +969,15 @@ const ResumeFormPage = () => {
                             )}
                         </div>
                     </>
-                ) : (
+                ) : mode === 'design' ? (
                     <DesignPanel
                         resumeData={resumeData}
                         onUpdate={(field, value) => setResumeData(prev => ({...prev, [field]: value}))}
                     />
-                )}
+                ) : null}
+                <div style={{ display: mode === 'ai' ? 'block' : 'none' }}>
+                    <AiPanel resumeData={resumeData} />
+                </div>
             </div>
 
             {/* RIGHT SIDE - Live Preview */}
