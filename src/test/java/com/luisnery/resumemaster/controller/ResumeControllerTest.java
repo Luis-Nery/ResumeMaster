@@ -70,7 +70,7 @@ public class ResumeControllerTest {
         fakeUserResponse = new UserResponse(1L, "Luis", "Nery",
                 "luis@test.com", LocalDateTime.now());
         fakeResumeResponse = new ResumeResponse(1L, "Mocked Resume", "Mocked Content"
-                , LocalDateTime.now(), LocalDateTime.now(), fakeUserResponse);
+                , LocalDateTime.now(), LocalDateTime.now(), fakeUserResponse,false,1);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ResumeControllerTest {
     @Test
     void updateResume_success() throws Exception {
         //Arrange
-        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated");
+        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated",null,null);
         when(resumeService.updateResume(eq(1L), any(UpdateResumeRequest.class))).thenReturn(fakeResume);
         //Act+Assert
         mockMvc.perform(put("/api/resumes/1").contentType(MediaType.APPLICATION_JSON)
@@ -147,7 +147,7 @@ public class ResumeControllerTest {
     @Test
     void updateResume_resumeNotFound_throwsException() throws Exception {
         //Arrange
-        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated");
+        UpdateResumeRequest resumeRequest = new UpdateResumeRequest(null, "Updated",null,null);
         when(resumeService.updateResume(eq(1L), any(UpdateResumeRequest.class)))
                 .thenThrow(new ResumeNotFoundException(1L));
         //Act+Assert
