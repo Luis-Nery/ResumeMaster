@@ -17,7 +17,9 @@ public class WebConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://resume-master-ev83cjssu-luis-nerys-projects-f92a86c7.vercel.app"
+                "https://resume-master-ev83cjssu-luis-nerys-projects-f92a86c7.vercel.app",
+                "https://resumemaster.dev",
+                "https://www.resumemaster.dev"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
