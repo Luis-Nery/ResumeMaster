@@ -17,7 +17,6 @@ public class WebConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://resume-master-ev83cjssu-luis-nerys-projects-f92a86c7.vercel.app",
                 "https://resumemaster.dev",
                 "https://www.resumemaster.dev"
         ));
