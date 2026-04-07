@@ -53,15 +53,17 @@ const ClassicTemplate = ({
             minHeight: '1122px',
             color: '#1a1a1a',
             fontSize: fs.base,
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
         }}>
             {/* Header */}
             <div style={{
                 textAlign: 'center',
                 marginBottom: '28px',
                 paddingBottom: '20px',
-                borderBottom: `3px solid ${accentColor}`
+                borderBottom: `3px solid ${accentColor}`,
+                width: '100%',
+                overflow: 'hidden',
             }}>
                 <h1 style={{
                     margin: '0 0 8px 0',
@@ -79,7 +81,9 @@ const ClassicTemplate = ({
                     margin: 0,
                     textAlign: 'center',
                     whiteSpace: 'nowrap',
+                    overflow: 'hidden',
                     width: '100%',
+                    boxSizing: 'border-box',
                 }}>
                     {contactText}
                 </p>
