@@ -55,6 +55,80 @@ const ClassicTemplate = ({
         setContactFontSize(size)
     }, [contactText, baseSize])
 
+    // ─── Skills renderer ─────────────────────────────────────────────────────
+    const isLegacySkills = Array.isArray(skills)
+    const skillsData = isLegacySkills
+        ? {displayMode: 'horizontal', bulletStyle: '•', separator: ',', categories: [{id: 1, name: '', items: skills}]}
+        : skills
+
+    const hasSkills = isLegacySkills
+        ? skills.some(Boolean)
+        : skillsData.categories.some(c => c.items.some(Boolean))
+
+    const renderSkills = () => {
+        const {displayMode, bulletStyle, separator, categories} = skillsData
+        const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '
+
+        if (displayMode === 'horizontal') {
+            return (
+                <div>
+                    {categories.filter(c => c.items.some(Boolean)).map(cat => (
+                        <p key={cat.id} style={{fontSize: fs.base, color: '#374151', margin: '0 0 4px 0', lineHeight: '1.7'}}>
+                            {cat.name && (
+                                <strong style={{color: '#1a1a1a'}}>{cat.name}: </strong>
+                            )}
+                            {cat.items.filter(Boolean).join(sep)}
+                        </p>
+                    ))}
+                </div>
+            )
+        }
+
+        if (displayMode === 'vertical') {
+            return (
+                <div>
+                    {categories.filter(c => c.items.some(Boolean)).map(cat => (
+                        <div key={cat.id} style={{marginBottom: '8px'}}>
+                            {cat.name && (
+                                <p style={{fontSize: fs.base, fontWeight: '600', color: '#1a1a1a', margin: '0 0 4px 0'}}>
+                                    {cat.name}
+                                </p>
+                            )}
+                            {cat.items.filter(Boolean).map((item, i) => (
+                                <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '2px', fontSize: fs.base, color: '#374151'}}>
+                                    <span style={{flexShrink: 0}}>{bulletStyle || '•'}</span>
+                                    <span>{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+
+        if (displayMode === 'columns') {
+            return (
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px'}}>
+                    {categories.filter(c => c.items.some(Boolean)).map(cat => (
+                        <div key={cat.id}>
+                            {cat.name && (
+                                <p style={{fontSize: fs.base, fontWeight: '600', color: '#1a1a1a', margin: '0 0 4px 0'}}>
+                                    {cat.name}
+                                </p>
+                            )}
+                            {cat.items.filter(Boolean).map((item, i) => (
+                                <div key={i} style={{display: 'flex', gap: '6px', alignItems: 'flex-start', marginBottom: '2px', fontSize: fs.base, color: '#374151'}}>
+                                    <span style={{flexShrink: 0}}>{bulletStyle || '•'}</span>
+                                    <span>{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+    }
+
     return (
         <div style={{
             fontFamily: font,
@@ -120,19 +194,9 @@ const ClassicTemplate = ({
                     <h2 style={sectionHeader}>Work Experience</h2>
                     {experience.filter(exp => exp.company || exp.title).map(exp => (
                         <div key={exp.id} style={{marginBottom: '16px'}}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start',
-                                marginBottom: '2px'
-                            }}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
                                 <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{exp.title}</strong>
-                                <span style={{
-                                    fontSize: fs.small,
-                                    color: '#777',
-                                    whiteSpace: 'nowrap',
-                                    marginLeft: '16px'
-                                }}>
+                                <span style={{fontSize: fs.small, color: '#777', whiteSpace: 'nowrap', marginLeft: '16px'}}>
                                     {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
                                 </span>
                             </div>
@@ -147,15 +211,7 @@ const ClassicTemplate = ({
                             {exp.bullets && exp.bullets.some(b => b.trim()) && (
                                 <div style={{margin: 0}}>
                                     {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
-                                        <div key={i} style={{
-                                            display: 'flex',
-                                            gap: '8px',
-                                            alignItems: 'flex-start',
-                                            marginBottom: '3px',
-                                            fontSize: fs.base,
-                                            lineHeight: '1.6',
-                                            color: '#333',
-                                        }}>
+                                        <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#333'}}>
                                             <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
                                             <span>{bullet}</span>
                                         </div>
@@ -173,42 +229,35 @@ const ClassicTemplate = ({
                     <h2 style={sectionHeader}>Education</h2>
                     {education.filter(edu => edu.school || edu.degree).map(edu => (
                         <div key={edu.id} style={{marginBottom: '14px'}}>
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start',
-                                marginBottom: '2px'
-                            }}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
                                 <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{edu.school}</strong>
-                                <span style={{
-                                    fontSize: fs.small,
-                                    color: '#777',
-                                    whiteSpace: 'nowrap',
-                                    marginLeft: '16px'
-                                }}>
+                                <span style={{fontSize: fs.small, color: '#777', whiteSpace: 'nowrap', marginLeft: '16px'}}>
                                     {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
                                 </span>
                             </div>
-                            <div style={{fontSize: fs.base, color: '#555', fontStyle: 'italic'}}>
+                            <div style={{fontSize: fs.base, color: '#555', fontStyle: 'italic', marginBottom: edu.gpa || edu.accomplishments ? '4px' : '0'}}>
                                 {[edu.degree, edu.field].filter(Boolean).join(' in ')}
                             </div>
+                            {edu.gpa && (
+                                <p style={{fontSize: fs.small, color: '#555', margin: '0 0 4px 0'}}>
+                                    GPA: {edu.gpa}
+                                </p>
+                            )}
+                            {edu.accomplishments && (
+                                <p style={{fontSize: fs.small, color: '#555', lineHeight: '1.6', margin: 0}}>
+                                    {edu.accomplishments}
+                                </p>
+                            )}
                         </div>
                     ))}
                 </div>
             )}
 
             {/* Skills */}
-            {skills.some(skill => skill) && (
+            {hasSkills && (
                 <div>
                     <h2 style={sectionHeader}>Skills</h2>
-                    <p style={{
-                        fontSize: fs.base,
-                        color: '#374151',
-                        margin: 0,
-                        lineHeight: '1.8',
-                    }}>
-                        {skills.filter(Boolean).join(' • ')}
-                    </p>
+                    {renderSkills()}
                 </div>
             )}
         </div>
