@@ -71,7 +71,8 @@ const emptyResumeData = {
         email: '',
         phone: '',
         location: '',
-        linkedin: ''
+        linkedin: '',
+        github: ''
     },
     summary: '',
     experience: [{
@@ -433,6 +434,13 @@ const ResumeFormPage = () => {
                                 <input type="text" placeholder="linkedin.com/in/you"
                                        value={resumeData.personalInfo.linkedin}
                                        onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
+                                       style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
+                            </div>
+                            <div>
+                                <label style={labelStyle}>GitHub</label>
+                                <input type="text" placeholder="github.com/yourusername"
+                                       value={resumeData.personalInfo.github || ''}
+                                       onChange={(e) => updatePersonalInfo('github', e.target.value)}
                                        style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                             </div>
                         </div>

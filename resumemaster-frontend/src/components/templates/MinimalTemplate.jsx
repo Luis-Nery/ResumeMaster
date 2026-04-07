@@ -68,6 +68,7 @@ const MinimalTemplate = ({
                         personalInfo.phone,
                         personalInfo.location,
                         personalInfo.linkedin,
+                        personalInfo.github,
                     ].filter(Boolean).join('   |   ')}
                 </p>
             </div>

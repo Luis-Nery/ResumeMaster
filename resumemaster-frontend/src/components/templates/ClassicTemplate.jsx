@@ -63,11 +63,14 @@ const ClassicTemplate = ({
                 </h1>
                 <div style={{
                     display: 'flex',
-                    flexWrap: 'wrap',
+                    flexWrap: 'nowrap',
                     justifyContent: 'center',
-                    gap: '6px 16px',
+                    alignItems: 'center',
+                    gap: '0 8px',
                     fontSize: fs.small,
-                    color: '#555'
+                    color: '#555',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
                 }}>
                     {personalInfo.email && <span>{personalInfo.email}</span>}
                     {personalInfo.phone && <><span style={{color: '#ccc'}}>|</span><span>{personalInfo.phone}</span></>}
@@ -75,6 +78,8 @@ const ClassicTemplate = ({
                         style={{color: '#ccc'}}>|</span><span>{personalInfo.location}</span></>}
                     {personalInfo.linkedin && <><span style={{color: '#ccc'}}>|</span><span
                         style={{color: accentColor}}>{personalInfo.linkedin}</span></>}
+                    {personalInfo.github && <><span style={{color: '#ccc'}}>|</span><span
+                        style={{color: accentColor}}>{personalInfo.github}</span></>}
                 </div>
             </div>
 

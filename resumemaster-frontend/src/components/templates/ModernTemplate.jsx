@@ -81,6 +81,12 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                             {personalInfo.linkedin}
                         </p>
                     )}
+                    // Add this after the linkedin block:
+                    {personalInfo.github && (
+                        <p style={{ fontSize: fs.small, color: 'rgba(255,255,255,0.9)', marginBottom: '6px' }}>
+                            {personalInfo.github}
+                        </p>
+                    )}
                 </div>
 
                 {/* Skills */}
