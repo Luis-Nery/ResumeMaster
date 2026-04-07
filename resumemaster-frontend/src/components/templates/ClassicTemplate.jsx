@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from 'react'
+
 const ClassicTemplate = ({
                              resumeData,
                              accentColor = '#1a1a1a',
@@ -7,6 +9,8 @@ const ClassicTemplate = ({
                              sectionSpacing
                          }) => {
     const {personalInfo, summary, experience, education, skills} = resumeData
+    const contactRef = useRef(null)
+    const [contactFontSize, setContactFontSize] = useState(null)
 
     const fs = {
         base: fontSizes?.base || '13.5px',
@@ -37,8 +41,19 @@ const ClassicTemplate = ({
     ].filter(Boolean)
 
     const contactText = contactFields.join('   |   ')
-    const base = parseFloat(fs.small) || 12
-    const contactFontSize = Math.min(base, Math.max(7, 4200 / Math.max(1, contactText.length)))
+    const baseSize = parseFloat(fs.small) || 12
+
+    useEffect(() => {
+        const el = contactRef.current
+        if (!el) return
+        el.style.fontSize = baseSize + 'px'
+        let size = baseSize
+        while (el.scrollWidth > el.clientWidth && size > 7) {
+            size -= 0.5
+            el.style.fontSize = size + 'px'
+        }
+        setContactFontSize(size)
+    }, [contactText, baseSize])
 
     return (
         <div style={{
@@ -75,8 +90,8 @@ const ClassicTemplate = ({
                 }}>
                     {personalInfo.firstName || 'Your'} {personalInfo.lastName || 'Name'}
                 </h1>
-                <p style={{
-                    fontSize: contactFontSize + 'px',
+                <p ref={contactRef} style={{
+                    fontSize: (contactFontSize || baseSize) + 'px',
                     color: '#555',
                     margin: 0,
                     textAlign: 'center',

@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from 'react'
+
 const MinimalTemplate = ({
                              resumeData,
                              accentColor = '#111111',
@@ -7,6 +9,8 @@ const MinimalTemplate = ({
                              sectionSpacing
                          }) => {
     const {personalInfo, summary, experience, education, skills} = resumeData
+    const contactRef = useRef(null)
+    const [contactFontSize, setContactFontSize] = useState(null)
 
     const fs = {
         base: fontSizes?.base || '13px',
@@ -30,8 +34,19 @@ const MinimalTemplate = ({
     ].filter(Boolean)
 
     const contactText = contactFields.join('   |   ')
-    const base = parseFloat(fs.small) || 11
-    const contactFontSize = Math.min(base, Math.max(7, 4200 / Math.max(1, contactText.length)))
+    const baseSize = parseFloat(fs.small) || 11
+
+    useEffect(() => {
+        const el = contactRef.current
+        if (!el) return
+        el.style.fontSize = baseSize + 'px'
+        let size = baseSize
+        while (el.scrollWidth > el.clientWidth && size > 7) {
+            size -= 0.5
+            el.style.fontSize = size + 'px'
+        }
+        setContactFontSize(size)
+    }, [contactText, baseSize])
 
     return (
         <div style={{
@@ -46,12 +61,12 @@ const MinimalTemplate = ({
             minHeight: '900px',
             color: '#1a1a1a',
             fontSize: fs.base,
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
         }}>
 
             {/* Header */}
-            <div style={{marginBottom: gap}}>
+            <div style={{marginBottom: gap, overflow: 'hidden', width: '100%'}}>
                 <h1 style={{
                     fontSize: fs.title,
                     fontWeight: '200',
@@ -69,13 +84,15 @@ const MinimalTemplate = ({
                     background: `linear-gradient(to right, ${accentColor}, transparent)`,
                     marginBottom: '8px',
                 }}/>
-                <p style={{
-                    fontSize: contactFontSize + 'px',
+                <p ref={contactRef} style={{
+                    fontSize: (contactFontSize || baseSize) + 'px',
                     color: '#555',
                     margin: 0,
                     letterSpacing: '0.03em',
                     whiteSpace: 'nowrap',
+                    overflow: 'hidden',
                     width: '100%',
+                    boxSizing: 'border-box',
                 }}>
                     {contactText}
                 </p>
