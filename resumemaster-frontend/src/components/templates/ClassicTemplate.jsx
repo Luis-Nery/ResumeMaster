@@ -61,26 +61,31 @@ const ClassicTemplate = ({
                 }}>
                     {personalInfo.firstName || 'Your'} {personalInfo.lastName || 'Name'}
                 </h1>
-                <div style={{
-                    display: 'flex',
-                    flexWrap: 'nowrap',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0 8px',
+                <p style={{
                     fontSize: fs.small,
                     color: '#555',
-                    overflow: 'hidden',
+                    margin: 0,
+                    textAlign: 'center',
                     whiteSpace: 'nowrap',
+                    width: '100%',
+                    display: 'block',
+                    transform: `scaleX(${Math.min(1, 62 / Math.max(1, [
+                        personalInfo.email,
+                        personalInfo.phone,
+                        personalInfo.location,
+                        personalInfo.linkedin,
+                        personalInfo.github,
+                    ].filter(Boolean).join(' | ').length))})`,
+                    transformOrigin: 'center top',
                 }}>
-                    {personalInfo.email && <span>{personalInfo.email}</span>}
-                    {personalInfo.phone && <><span style={{color: '#ccc'}}>|</span><span>{personalInfo.phone}</span></>}
-                    {personalInfo.location && <><span
-                        style={{color: '#ccc'}}>|</span><span>{personalInfo.location}</span></>}
-                    {personalInfo.linkedin && <><span style={{color: '#ccc'}}>|</span><span
-                        style={{color: accentColor}}>{personalInfo.linkedin}</span></>}
-                    {personalInfo.github && <><span style={{color: '#ccc'}}>|</span><span
-                        style={{color: accentColor}}>{personalInfo.github}</span></>}
-                </div>
+                    {[
+                        personalInfo.email,
+                        personalInfo.phone,
+                        personalInfo.location,
+                        personalInfo.linkedin,
+                        personalInfo.github,
+                    ].filter(Boolean).join('   |   ')}
+                </p>
             </div>
 
             {/* Summary */}

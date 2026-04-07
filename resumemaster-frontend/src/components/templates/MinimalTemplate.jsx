@@ -6,7 +6,7 @@ const MinimalTemplate = ({
                              padding,
                              sectionSpacing
                          }) => {
-    const { personalInfo, summary, experience, education, skills } = resumeData
+    const {personalInfo, summary, experience, education, skills} = resumeData
 
     const fs = {
         base: fontSizes?.base || '13px',
@@ -39,7 +39,7 @@ const MinimalTemplate = ({
         }}>
 
             {/* Header */}
-            <div style={{ marginBottom: gap }}>
+            <div style={{marginBottom: gap}}>
                 <h1 style={{
                     fontSize: fs.title,
                     fontWeight: '200',
@@ -56,12 +56,23 @@ const MinimalTemplate = ({
                     height: '1px',
                     background: `linear-gradient(to right, ${accentColor}, transparent)`,
                     marginBottom: '8px',
-                }} />
+                }}/>
                 <p style={{
                     fontSize: fs.small,
                     color: '#555',
                     margin: 0,
                     letterSpacing: '0.03em',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    display: 'block',
+                    transform: `scaleX(${Math.min(1, 62 / Math.max(1, [
+                        personalInfo.email,
+                        personalInfo.phone,
+                        personalInfo.location,
+                        personalInfo.linkedin,
+                        personalInfo.github,
+                    ].filter(Boolean).join(' | ').length))})`,
+                    transformOrigin: 'left top',
                 }}>
                     {[
                         personalInfo.email,
@@ -75,7 +86,7 @@ const MinimalTemplate = ({
 
             {/* Summary */}
             {summary && (
-                <div style={{ marginBottom: gap }}>
+                <div style={{marginBottom: gap}}>
                     <p style={{
                         fontSize: fs.label,
                         fontWeight: '700',
@@ -99,7 +110,7 @@ const MinimalTemplate = ({
 
             {/* Experience */}
             {filteredExperience.length > 0 && (
-                <div style={{ marginBottom: gap }}>
+                <div style={{marginBottom: gap}}>
                     <p style={{
                         fontSize: fs.label,
                         fontWeight: '700',
@@ -124,10 +135,10 @@ const MinimalTemplate = ({
                                     alignItems: 'baseline',
                                     marginBottom: '2px'
                                 }}>
-                                    <strong style={{ fontSize: fs.name, color: '#1a1a1a', fontWeight: '600' }}>
+                                    <strong style={{fontSize: fs.name, color: '#1a1a1a', fontWeight: '600'}}>
                                         {exp.title}
                                     </strong>
-                                    <span style={{ fontSize: fs.small, color: '#777', letterSpacing: '0.02em' }}>
+                                    <span style={{fontSize: fs.small, color: '#777', letterSpacing: '0.02em'}}>
                                         {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
                                     </span>
                                 </div>
@@ -157,7 +168,7 @@ const MinimalTemplate = ({
 
             {/* Education */}
             {filteredEducation.length > 0 && (
-                <div style={{ marginBottom: gap }}>
+                <div style={{marginBottom: gap}}>
                     <p style={{
                         fontSize: fs.label,
                         fontWeight: '700',
@@ -182,14 +193,14 @@ const MinimalTemplate = ({
                                     alignItems: 'baseline',
                                     marginBottom: '2px'
                                 }}>
-                                    <strong style={{ fontSize: fs.name, color: '#1a1a1a', fontWeight: '600' }}>
+                                    <strong style={{fontSize: fs.name, color: '#1a1a1a', fontWeight: '600'}}>
                                         {edu.school}
                                     </strong>
-                                    <span style={{ fontSize: fs.small, color: '#777' }}>
+                                    <span style={{fontSize: fs.small, color: '#777'}}>
                                         {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
                                     </span>
                                 </div>
-                                <p style={{ fontSize: fs.small, color: '#555', margin: 0 }}>
+                                <p style={{fontSize: fs.small, color: '#555', margin: 0}}>
                                     {[edu.degree, edu.field].filter(Boolean).join(' in ')}
                                 </p>
                             </div>
