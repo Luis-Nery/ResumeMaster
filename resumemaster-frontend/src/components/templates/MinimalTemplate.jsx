@@ -31,7 +31,7 @@ const MinimalTemplate = ({
 
     const contactText = contactFields.join('   |   ')
     const base = parseFloat(fs.small) || 11
-    const contactFontSize = Math.min(base, Math.max(7, 560 / Math.max(1, contactText.length)))
+    const contactFontSize = Math.min(base, Math.max(7, 4200 / Math.max(1, contactText.length)))
 
     return (
         <div style={{
