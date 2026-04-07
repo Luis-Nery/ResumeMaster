@@ -65,7 +65,7 @@ const MinimalTemplate = ({
                     whiteSpace: 'nowrap',
                     width: '100%',
                     display: 'block',
-                    transform: `scaleX(${Math.min(1, 62 / Math.max(1, [
+                    transform: `scaleX(${Math.min(1, 90 / Math.max(1, [
                         personalInfo.email,
                         personalInfo.phone,
                         personalInfo.location,
