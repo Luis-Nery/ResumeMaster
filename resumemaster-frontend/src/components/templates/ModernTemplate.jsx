@@ -15,7 +15,7 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
     // ─── Skills renderer ─────────────────────────────────────────────────────
     const isLegacySkills = Array.isArray(skills)
     const skillsData = isLegacySkills
-        ? {displayMode: 'horizontal', bulletStyle: '•', separator: ',', categories: [{id: 1, name: '', items: skills}]}
+        ? {displayMode: 'horizontal', bulletStyle: '•', separator: ',', columns: 2, categories: [{id: 1, name: '', items: skills}]}
         : skills
 
     const hasSkills = isLegacySkills
@@ -33,9 +33,7 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                 <div>
                     {categories.filter(c => c.items.some(Boolean)).map(cat => (
                         <p key={cat.id} style={{fontSize: fs.small, color: 'rgba(255,255,255,0.9)', margin: '0 0 6px 0', lineHeight: '1.7'}}>
-                            {cat.name && (
-                                <strong style={{color: 'white'}}>{cat.name}: </strong>
-                            )}
+                            {cat.name && <strong style={{color: 'white'}}>{cat.name}: </strong>}
                             {cat.items.filter(Boolean).join(sep)}
                         </p>
                     ))}
@@ -204,15 +202,21 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                                             {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
                                         </span>
                                     </div>
-                                    <div style={{fontSize: fs.base, color: '#666', marginBottom: edu.gpa || edu.accomplishments ? '4px' : '0'}}>
+                                    <div style={{fontSize: fs.base, color: '#666', marginBottom: '3px'}}>
                                         {[edu.degree, edu.field].filter(Boolean).join(' in ')}
+                                        {edu.gpa && <span style={{color: '#777'}}> &nbsp;|&nbsp; GPA: {edu.gpa}</span>}
                                     </div>
-                                    {edu.gpa && (
-                                        <p style={{fontSize: fs.small, color: '#777', margin: '0 0 4px 0'}}>
-                                            GPA: {edu.gpa}
-                                        </p>
+                                    {edu.accomplishmentBullets && edu.accomplishmentBullets.some(b => b.trim()) && (
+                                        <div style={{margin: 0}}>
+                                            {edu.accomplishmentBullets.filter(b => b.trim()).map((bullet, i) => (
+                                                <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '2px', fontSize: fs.small, lineHeight: '1.6', color: '#777'}}>
+                                                    <span style={{flexShrink: 0, marginTop: '1px'}}>{edu.accomplishmentBulletStyle || '•'}</span>
+                                                    <span>{bullet}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
-                                    {edu.accomplishments && (
+                                    {edu.accomplishments && !edu.accomplishmentBullets && (
                                         <p style={{fontSize: fs.small, color: '#777', lineHeight: '1.6', margin: 0}}>
                                             {edu.accomplishments}
                                         </p>

@@ -94,12 +94,14 @@ const emptyResumeData = {
         startDate: '',
         endDate: '',
         gpa: '',
-        accomplishments: ''
+        accomplishmentBullets: [''],
+        accomplishmentBulletStyle: '•'
     }],
     skills: {
         displayMode: 'horizontal',
         bulletStyle: '•',
         separator: ',',
+        columns: 2,
         categories: [
             {id: 1, name: '', items: ['']}
         ]
@@ -329,7 +331,8 @@ const ResumeFormPage = () => {
             ...prev,
             education: [...prev.education, {
                 id: Date.now(), school: '', degree: '', field: '',
-                startDate: '', endDate: '', gpa: '', accomplishments: ''
+                startDate: '', endDate: '', gpa: '',
+                accomplishmentBullets: [''], accomplishmentBulletStyle: '•'
             }]
         }))
     }
@@ -338,15 +341,48 @@ const ResumeFormPage = () => {
         setResumeData(prev => ({...prev, education: prev.education.filter(edu => edu.id !== eduId)}))
     }
 
+    const addAccomplishment = (eduId) => {
+        setResumeData(prev => ({
+            ...prev,
+            education: prev.education.map(edu =>
+                edu.id === eduId ? {...edu, accomplishmentBullets: [...(edu.accomplishmentBullets || ['']), '']} : edu
+            )
+        }))
+    }
+
+    const removeAccomplishment = (eduId, index) => {
+        setResumeData(prev => ({
+            ...prev,
+            education: prev.education.map(edu =>
+                edu.id === eduId ? {
+                    ...edu,
+                    accomplishmentBullets: (edu.accomplishmentBullets || ['']).filter((_, i) => i !== index)
+                } : edu
+            )
+        }))
+    }
+
+    const updateAccomplishment = (eduId, index, value) => {
+        setResumeData(prev => ({
+            ...prev,
+            education: prev.education.map(edu =>
+                edu.id === eduId ? {
+                    ...edu,
+                    accomplishmentBullets: (edu.accomplishmentBullets || ['']).map((b, i) => i === index ? value : b)
+                } : edu
+            )
+        }))
+    }
+
     // ─── Skills helpers ───────────────────────────────────────────────────────
 
     const getSkills = () => {
-        // backward compat: old resumes had skills as a plain array
         if (Array.isArray(resumeData.skills)) {
             return {
                 displayMode: 'horizontal',
                 bulletStyle: '•',
                 separator: ',',
+                columns: 2,
                 categories: [{id: 1, name: '', items: resumeData.skills}]
             }
         }
@@ -354,10 +390,7 @@ const ResumeFormPage = () => {
     }
 
     const updateSkillsMeta = (field, value) => {
-        setResumeData(prev => ({
-            ...prev,
-            skills: {...getSkills(), [field]: value}
-        }))
+        setResumeData(prev => ({...prev, skills: {...getSkills(), [field]: value}}))
     }
 
     const addCategory = () => {
@@ -655,6 +688,8 @@ const ResumeFormPage = () => {
                                 <p style={{fontSize: '12px', color: '#8b8ba7', marginBottom: '16px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                                     School {idx + 1}
                                 </p>
+
+                                {/* Row 1: School + Degree */}
                                 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px'}}>
                                     <div>
                                         <label style={labelStyle}>School</label>
@@ -668,6 +703,10 @@ const ResumeFormPage = () => {
                                                onChange={(e) => updateEducation(edu.id, 'degree', e.target.value)}
                                                style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                                     </div>
+                                </div>
+
+                                {/* Row 2: Field + GPA + Start + End all in one row */}
+                                <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '12px', marginBottom: '16px'}}>
                                     <div>
                                         <label style={labelStyle}>Field of Study</label>
                                         <input type="text" placeholder="Computer Science" value={edu.field}
@@ -675,38 +714,72 @@ const ResumeFormPage = () => {
                                                style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                                     </div>
                                     <div>
-                                        <label style={labelStyle}>GPA (optional)</label>
-                                        <input type="text" placeholder="3.8 / 4.0" value={edu.gpa || ''}
+                                        <label style={labelStyle}>GPA</label>
+                                        <input type="text" placeholder="3.8" value={edu.gpa || ''}
                                                onChange={(e) => updateEducation(edu.id, 'gpa', e.target.value)}
                                                style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                                     </div>
-                                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
-                                        <div>
-                                            <label style={labelStyle}>Start</label>
-                                            <input type="text" placeholder="2020" value={edu.startDate}
-                                                   onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
-                                                   style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
-                                        </div>
-                                        <div>
-                                            <label style={labelStyle}>End</label>
-                                            <input type="text" placeholder="2024" value={edu.endDate}
-                                                   onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
-                                                   style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
-                                        </div>
+                                    <div>
+                                        <label style={labelStyle}>Start</label>
+                                        <input type="text" placeholder="2020" value={edu.startDate}
+                                               onChange={(e) => updateEducation(edu.id, 'startDate', e.target.value)}
+                                               style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>End</label>
+                                        <input type="text" placeholder="2024" value={edu.endDate}
+                                               onChange={(e) => updateEducation(edu.id, 'endDate', e.target.value)}
+                                               style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                                     </div>
                                 </div>
+
+                                {/* Accomplishment Bullet Style */}
+                                <div style={{marginBottom: '12px'}}>
+                                    <label style={labelStyle}>Accomplishment Bullet Style</label>
+                                    <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                                        {['•', '▪', '–', '→', '✓', '★'].map(style => (
+                                            <button key={style}
+                                                    onClick={() => updateEducation(edu.id, 'accomplishmentBulletStyle', style)}
+                                                    style={{
+                                                        padding: '6px 14px', borderRadius: '6px', border: '1px solid',
+                                                        borderColor: (edu.accomplishmentBulletStyle || '•') === style ? '#7c3aed' : '#2a2a3a',
+                                                        backgroundColor: (edu.accomplishmentBulletStyle || '•') === style ? '#7c3aed22' : 'transparent',
+                                                        color: (edu.accomplishmentBulletStyle || '•') === style ? '#a78bfa' : '#8b8ba7',
+                                                        fontSize: '14px', cursor: 'pointer',
+                                                    }}>
+                                                {style}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Accomplishment Bullets */}
                                 <div>
                                     <label style={labelStyle}>Academic Accomplishments (optional)</label>
-                                    <textarea
-                                        placeholder="e.g. Dean's List, Magna Cum Laude, relevant coursework, honors..."
-                                        value={edu.accomplishments || ''}
-                                        onChange={(e) => updateEducation(edu.id, 'accomplishments', e.target.value)}
-                                        rows={3}
-                                        style={{...inputStyle, resize: 'vertical', lineHeight: '1.6'}}
-                                        onFocus={focusInput} onBlur={blurInput}/>
+                                    {(edu.accomplishmentBullets || ['']).map((bullet, bulletIdx) => (
+                                        <div key={bulletIdx} style={{display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px'}}>
+                                            <span style={{color: '#8b8ba7', fontSize: '14px', flexShrink: 0}}>{edu.accomplishmentBulletStyle || '•'}</span>
+                                            <input type="text"
+                                                   placeholder="e.g. Dean's List, Magna Cum Laude..."
+                                                   value={bullet}
+                                                   onChange={(e) => updateAccomplishment(edu.id, bulletIdx, e.target.value)}
+                                                   style={{...inputStyle, flex: 1}}
+                                                   onFocus={focusInput} onBlur={blurInput}/>
+                                            {(edu.accomplishmentBullets || ['']).length > 1 && (
+                                                <button onClick={() => removeAccomplishment(edu.id, bulletIdx)}
+                                                        style={{backgroundColor: '#ef444411', border: '1px solid #ef444433', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', flexShrink: 0}}>
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addAccomplishment(edu.id)} style={{...addButtonStyle, marginTop: '4px'}}>
+                                        + Add Accomplishment
+                                    </button>
                                 </div>
+
                                 {resumeData.education.length > 1 && (
-                                    <button onClick={() => removeEducation(edu.id)} style={removeButtonStyle}>
+                                    <button onClick={() => removeEducation(edu.id)} style={{...removeButtonStyle, marginTop: '16px'}}>
                                         Remove
                                     </button>
                                 )}
@@ -733,23 +806,46 @@ const ResumeFormPage = () => {
                                 {[
                                     {id: 'horizontal', label: 'Horizontal', desc: 'Languages: Java, Python'},
                                     {id: 'vertical', label: 'Vertical', desc: 'Bulleted list per category'},
-                                    {id: 'columns', label: 'Columns', desc: '2-column table layout'},
-                                ].map(mode => (
-                                    <button key={mode.id}
-                                            onClick={() => updateSkillsMeta('displayMode', mode.id)}
+                                    {id: 'columns', label: 'Columns', desc: 'Multi-column layout'},
+                                ].map(m => (
+                                    <button key={m.id}
+                                            onClick={() => updateSkillsMeta('displayMode', m.id)}
                                             style={{
                                                 flex: 1, padding: '10px 8px', borderRadius: '8px', border: '1px solid',
-                                                borderColor: skills.displayMode === mode.id ? '#7c3aed' : '#2a2a3a',
-                                                backgroundColor: skills.displayMode === mode.id ? '#7c3aed22' : 'transparent',
-                                                color: skills.displayMode === mode.id ? '#a78bfa' : '#8b8ba7',
+                                                borderColor: skills.displayMode === m.id ? '#7c3aed' : '#2a2a3a',
+                                                backgroundColor: skills.displayMode === m.id ? '#7c3aed22' : 'transparent',
+                                                color: skills.displayMode === m.id ? '#a78bfa' : '#8b8ba7',
                                                 cursor: 'pointer', textAlign: 'center',
                                             }}>
-                                        <div style={{fontSize: '13px', fontWeight: '600'}}>{mode.label}</div>
-                                        <div style={{fontSize: '11px', marginTop: '2px', opacity: 0.7}}>{mode.desc}</div>
+                                        <div style={{fontSize: '13px', fontWeight: '600'}}>{m.label}</div>
+                                        <div style={{fontSize: '11px', marginTop: '2px', opacity: 0.7}}>{m.desc}</div>
                                     </button>
                                 ))}
                             </div>
                         </div>
+
+                        {/* Column Count — only for columns mode */}
+                        {skills.displayMode === 'columns' && (
+                            <div style={{marginBottom: '20px'}}>
+                                <label style={labelStyle}>Number of Columns</label>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    {[2, 3, 4].map(n => (
+                                        <button key={n}
+                                                onClick={() => updateSkillsMeta('columns', n)}
+                                                style={{
+                                                    flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid',
+                                                    borderColor: (skills.columns || 2) === n ? '#7c3aed' : '#2a2a3a',
+                                                    backgroundColor: (skills.columns || 2) === n ? '#7c3aed22' : 'transparent',
+                                                    color: (skills.columns || 2) === n ? '#a78bfa' : '#8b8ba7',
+                                                    cursor: 'pointer', textAlign: 'center',
+                                                    fontSize: '14px', fontWeight: '600',
+                                                }}>
+                                            {n} Columns
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Separator — only for horizontal */}
                         {skills.displayMode === 'horizontal' && (

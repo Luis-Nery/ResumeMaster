@@ -51,7 +51,7 @@ const MinimalTemplate = ({
     // ─── Skills renderer ─────────────────────────────────────────────────────
     const isLegacySkills = Array.isArray(skills)
     const skillsData = isLegacySkills
-        ? {displayMode: 'horizontal', bulletStyle: '•', separator: ',', categories: [{id: 1, name: '', items: skills}]}
+        ? {displayMode: 'horizontal', bulletStyle: '•', separator: ',', columns: 2, categories: [{id: 1, name: '', items: skills}]}
         : skills
 
     const hasSkills = isLegacySkills
@@ -59,17 +59,16 @@ const MinimalTemplate = ({
         : skillsData.categories.some(c => c.items.some(Boolean))
 
     const renderSkills = () => {
-        const {displayMode, bulletStyle, separator, categories} = skillsData
+        const {displayMode, bulletStyle, separator, columns, categories} = skillsData
         const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '
+        const colCount = columns || 2
 
         if (displayMode === 'horizontal') {
             return (
                 <div>
                     {categories.filter(c => c.items.some(Boolean)).map(cat => (
                         <p key={cat.id} style={{fontSize: fs.base, color: '#444', margin: '0 0 4px 0', lineHeight: '1.7', letterSpacing: '0.02em'}}>
-                            {cat.name && (
-                                <strong style={{color: '#1a1a1a'}}>{cat.name}: </strong>
-                            )}
+                            {cat.name && <strong style={{color: '#1a1a1a'}}>{cat.name}: </strong>}
                             {cat.items.filter(Boolean).join(sep)}
                         </p>
                     ))}
@@ -101,18 +100,22 @@ const MinimalTemplate = ({
 
         if (displayMode === 'columns') {
             return (
-                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px'}}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${colCount}, 1fr)`,
+                    gap: '8px 16px',
+                }}>
                     {categories.filter(c => c.items.some(Boolean)).map(cat => (
-                        <div key={cat.id}>
+                        <div key={cat.id} style={{minWidth: 0}}>
                             {cat.name && (
-                                <p style={{fontSize: fs.base, fontWeight: '600', color: '#1a1a1a', margin: '0 0 4px 0'}}>
+                                <p style={{fontSize: fs.base, fontWeight: '600', color: '#1a1a1a', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>
                                     {cat.name}
                                 </p>
                             )}
                             {cat.items.filter(Boolean).map((item, i) => (
                                 <div key={i} style={{display: 'flex', gap: '6px', alignItems: 'flex-start', marginBottom: '2px', fontSize: fs.base, color: '#444'}}>
                                     <span style={{flexShrink: 0}}>{bulletStyle || '•'}</span>
-                                    <span>{item}</span>
+                                    <span style={{wordBreak: 'break-word'}}>{item}</span>
                                 </div>
                             ))}
                         </div>
@@ -248,15 +251,21 @@ const MinimalTemplate = ({
                                         {edu.startDate}{edu.startDate && ' — '}{edu.endDate}
                                     </span>
                                 </div>
-                                <p style={{fontSize: fs.small, color: '#555', margin: edu.gpa || edu.accomplishments ? '0 0 4px 0' : '0'}}>
+                                <p style={{fontSize: fs.small, color: '#555', margin: '0 0 3px 0'}}>
                                     {[edu.degree, edu.field].filter(Boolean).join(' in ')}
+                                    {edu.gpa && <span style={{color: '#666'}}> &nbsp;|&nbsp; GPA: {edu.gpa}</span>}
                                 </p>
-                                {edu.gpa && (
-                                    <p style={{fontSize: fs.small, color: '#666', margin: '0 0 4px 0'}}>
-                                        GPA: {edu.gpa}
-                                    </p>
+                                {edu.accomplishmentBullets && edu.accomplishmentBullets.some(b => b.trim()) && (
+                                    <div style={{margin: 0}}>
+                                        {edu.accomplishmentBullets.filter(b => b.trim()).map((bullet, i) => (
+                                            <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '2px', fontSize: fs.small, lineHeight: '1.6', color: '#666'}}>
+                                                <span style={{flexShrink: 0, marginTop: '1px'}}>{edu.accomplishmentBulletStyle || '•'}</span>
+                                                <span>{bullet}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
-                                {edu.accomplishments && (
+                                {edu.accomplishments && !edu.accomplishmentBullets && (
                                     <p style={{fontSize: fs.small, color: '#666', lineHeight: '1.6', margin: 0}}>
                                         {edu.accomplishments}
                                     </p>
