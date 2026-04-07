@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import {useState} from 'react'
+import {useNavigate, Link} from 'react-router-dom'
 import api from '../services/api'
 import LavaLamp from '../components/LavaLamp'
 
@@ -17,10 +17,19 @@ const RegisterPage = () => {
         setError('')
 
         try {
-            await api.post('/auth/register', { email, password })
+            await api.post('/auth/register', {email, password})
             navigate('/login')
         } catch (err) {
-            setError('Registration failed. Email may already be in use.')
+            const data = err.response?.data
+            if (data && typeof data === 'object' && data.password) {
+                setError(data.password)
+            } else if (data && typeof data === 'object' && data.email) {
+                setError(data.email)
+            } else if (data?.message) {
+                setError(data.message)
+            } else {
+                setError('Registration failed. Please try again.')
+            }
         } finally {
             setLoading(false)
         }
@@ -29,9 +38,9 @@ const RegisterPage = () => {
     return (
         <div
             className="flex items-center justify-center px-4 relative overflow-hidden"
-            style={{ minHeight: 'calc(100vh - 64px)', backgroundColor: '#0d0d14' }}
+            style={{minHeight: 'calc(100vh - 64px)', backgroundColor: '#0d0d14'}}
         >
-            <LavaLamp />
+            <LavaLamp/>
 
             <div className="w-full max-w-md rounded-2xl p-8 relative z-10"
                  style={{
@@ -44,14 +53,14 @@ const RegisterPage = () => {
                     <h1 className="text-2xl font-semibold mb-1 gradient-text">
                         Create account
                     </h1>
-                    <p className="text-sm" style={{ color: '#8b8ba7' }}>
+                    <p className="text-sm" style={{color: '#8b8ba7'}}>
                         Start building your perfect resume
                     </p>
                 </div>
 
                 {error && (
                     <div className="mb-4 px-4 py-3 rounded-lg text-sm"
-                         style={{ backgroundColor: '#2a1a1a', border: '1px solid #ef4444', color: '#ef4444' }}>
+                         style={{backgroundColor: '#2a1a1a', border: '1px solid #ef4444', color: '#ef4444'}}>
                         {error}
                     </div>
                 )}
@@ -59,7 +68,7 @@ const RegisterPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium mb-2"
-                               style={{ color: '#8b8ba7' }}>
+                               style={{color: '#8b8ba7'}}>
                             Email
                         </label>
                         <input
@@ -80,7 +89,7 @@ const RegisterPage = () => {
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-2"
-                               style={{ color: '#8b8ba7' }}>
+                               style={{color: '#8b8ba7'}}>
                             Password
                         </label>
                         <input
@@ -88,6 +97,7 @@ const RegisterPage = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            minLength="8"
                             placeholder="••••••••"
                             className="w-full px-4 py-3 rounded-lg text-sm outline-none transition"
                             style={{
@@ -98,6 +108,9 @@ const RegisterPage = () => {
                             onFocus={e => e.target.style.borderColor = '#7c3aed'}
                             onBlur={e => e.target.style.borderColor = '#2a2a3a'}
                         />
+                        <p style={{color: '#8b8ba7', fontSize: '11px', marginTop: '4px'}}>
+                            Must be at least 8 characters
+                        </p>
                     </div>
                     <button
                         type="submit"
@@ -113,11 +126,11 @@ const RegisterPage = () => {
                     </button>
                 </form>
 
-                <p className="text-center text-sm mt-6" style={{ color: '#8b8ba7' }}>
+                <p className="text-center text-sm mt-6" style={{color: '#8b8ba7'}}>
                     Already have an account?{' '}
                     <Link to="/login"
                           className="font-medium transition"
-                          style={{ color: '#7c3aed' }}
+                          style={{color: '#7c3aed'}}
                           onMouseEnter={e => e.target.style.color = '#9d5cff'}
                           onMouseLeave={e => e.target.style.color = '#7c3aed'}
                     >
