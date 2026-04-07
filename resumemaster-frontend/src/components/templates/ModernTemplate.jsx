@@ -77,13 +77,12 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                         </p>
                     )}
                     {personalInfo.linkedin && (
-                        <p style={{ fontSize: fs.small, color: 'rgba(255,255,255,0.9)', wordBreak: 'break-all' }}>
+                        <p style={{ fontSize: fs.small, color: 'rgba(255,255,255,0.9)', marginBottom: '6px', wordBreak: 'break-all' }}>
                             {personalInfo.linkedin}
                         </p>
                     )}
-                    // Add this after the linkedin block:
                     {personalInfo.github && (
-                        <p style={{ fontSize: fs.small, color: 'rgba(255,255,255,0.9)', marginBottom: '6px' }}>
+                        <p style={{ fontSize: fs.small, color: 'rgba(255,255,255,0.9)', marginBottom: '6px', wordBreak: 'break-all' }}>
                             {personalInfo.github}
                         </p>
                     )}
@@ -169,9 +168,27 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                                         {exp.company}
                                     </div>
                                     {exp.description && (
-                                        <p style={{ fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: 0 }}>
+                                        <p style={{ fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: '0 0 6px 0' }}>
                                             {exp.description}
                                         </p>
+                                    )}
+                                    {exp.bullets && exp.bullets.some(b => b.trim()) && (
+                                        <div style={{ margin: 0 }}>
+                                            {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
+                                                <div key={i} style={{
+                                                    display: 'flex',
+                                                    gap: '8px',
+                                                    alignItems: 'flex-start',
+                                                    marginBottom: '3px',
+                                                    fontSize: fs.base,
+                                                    lineHeight: '1.6',
+                                                    color: '#555',
+                                                }}>
+                                                    <span style={{ flexShrink: 0, marginTop: '1px' }}>{exp.bulletStyle || '•'}</span>
+                                                    <span>{bullet}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
                             )

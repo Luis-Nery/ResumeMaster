@@ -111,12 +111,7 @@ const MinimalTemplate = ({
                     }}>
                         Profile
                     </p>
-                    <p style={{
-                        fontSize: fs.base,
-                        lineHeight: '1.7',
-                        color: '#333',
-                        margin: 0,
-                    }}>
+                    <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>
                         {summary}
                     </p>
                 </div>
@@ -169,10 +164,28 @@ const MinimalTemplate = ({
                                         fontSize: fs.base,
                                         lineHeight: '1.6',
                                         color: '#444',
-                                        margin: 0,
+                                        margin: '0 0 6px 0',
                                     }}>
                                         {exp.description}
                                     </p>
+                                )}
+                                {exp.bullets && exp.bullets.some(b => b.trim()) && (
+                                    <div style={{margin: 0}}>
+                                        {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
+                                            <div key={i} style={{
+                                                display: 'flex',
+                                                gap: '8px',
+                                                alignItems: 'flex-start',
+                                                marginBottom: '3px',
+                                                fontSize: fs.base,
+                                                lineHeight: '1.6',
+                                                color: '#444',
+                                            }}>
+                                                <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
+                                                <span>{bullet}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                         )

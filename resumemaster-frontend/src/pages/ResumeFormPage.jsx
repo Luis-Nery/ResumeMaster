@@ -82,7 +82,9 @@ const emptyResumeData = {
         startDate: '',
         endDate: '',
         current: false,
-        description: ''
+        description: '',
+        bullets: [''],
+        bulletStyle: '•'
     }],
     education: [{
         id: 1,
@@ -229,6 +231,7 @@ const ResumeFormPage = () => {
         localStorage.removeItem(`resume_draft_${resumeId}`)
         navigate('/dashboard')
     }
+
     const handleDownload = async () => {
         const element = document.getElementById('resume-preview').firstElementChild
         if (!element) return
@@ -236,7 +239,6 @@ const ResumeFormPage = () => {
         const html2pdf = (await import('html2pdf.js')).default
         const filename = `${resumeData.title || 'resume'}.pdf`
 
-        // Clone and force A4 width
         const clone = element.cloneNode(true)
         clone.style.width = '794px'
         clone.style.maxWidth = '794px'
@@ -298,7 +300,9 @@ const ResumeFormPage = () => {
                 startDate: '',
                 endDate: '',
                 current: false,
-                description: ''
+                description: '',
+                bullets: [''],
+                bulletStyle: '•'
             }]
         }))
     }
@@ -307,6 +311,39 @@ const ResumeFormPage = () => {
         setResumeData(prev => ({
             ...prev,
             experience: prev.experience.filter(exp => exp.id !== expId)
+        }))
+    }
+
+    const addBullet = (expId) => {
+        setResumeData(prev => ({
+            ...prev,
+            experience: prev.experience.map(exp =>
+                exp.id === expId ? {...exp, bullets: [...(exp.bullets || ['']), '']} : exp
+            )
+        }))
+    }
+
+    const removeBullet = (expId, index) => {
+        setResumeData(prev => ({
+            ...prev,
+            experience: prev.experience.map(exp =>
+                exp.id === expId ? {
+                    ...exp,
+                    bullets: (exp.bullets || ['']).filter((_, i) => i !== index)
+                } : exp
+            )
+        }))
+    }
+
+    const updateBullet = (expId, index, value) => {
+        setResumeData(prev => ({
+            ...prev,
+            experience: prev.experience.map(exp =>
+                exp.id === expId ? {
+                    ...exp,
+                    bullets: (exp.bullets || ['']).map((b, i) => i === index ? value : b)
+                } : exp
+            )
         }))
     }
 
@@ -550,19 +587,93 @@ const ResumeFormPage = () => {
                                            onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}/>
                                     Currently working here
                                 </label>
-                                <div>
-                                    <label style={labelStyle}>Description</label>
+
+                                {/* Description */}
+                                <div style={{marginBottom: '16px'}}>
+                                    <label style={labelStyle}>Description (optional)</label>
                                     <textarea
-                                        placeholder="Describe your key responsibilities and achievements..."
+                                        placeholder="Brief overview of your role..."
                                         value={exp.description}
                                         onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                                        rows={4}
+                                        rows={2}
                                         style={{...inputStyle, resize: 'vertical', lineHeight: '1.6'}}
                                         onFocus={focusInput} onBlur={blurInput}/>
                                 </div>
+
+                                {/* Bullet Style Picker */}
+                                <div style={{marginBottom: '16px'}}>
+                                    <label style={labelStyle}>Bullet Style</label>
+                                    <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                                        {['•', '▪', '–', '→', '✓', '★'].map(style => (
+                                            <button
+                                                key={style}
+                                                onClick={() => updateExperience(exp.id, 'bulletStyle', style)}
+                                                style={{
+                                                    padding: '6px 14px',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid',
+                                                    borderColor: (exp.bulletStyle || '•') === style ? '#7c3aed' : '#2a2a3a',
+                                                    backgroundColor: (exp.bulletStyle || '•') === style ? '#7c3aed22' : 'transparent',
+                                                    color: (exp.bulletStyle || '•') === style ? '#a78bfa' : '#8b8ba7',
+                                                    fontSize: '14px',
+                                                    cursor: 'pointer',
+                                                }}>
+                                                {style}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Bullet Points */}
+                                <div>
+                                    <label style={labelStyle}>Bullet Points</label>
+                                    {(exp.bullets || ['']).map((bullet, bulletIdx) => (
+                                        <div key={bulletIdx} style={{
+                                            display: 'flex',
+                                            gap: '8px',
+                                            alignItems: 'center',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <span style={{
+                                                color: '#8b8ba7',
+                                                fontSize: '14px',
+                                                flexShrink: 0
+                                            }}>{exp.bulletStyle || '•'}</span>
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. Reduced API response time by 40%"
+                                                value={bullet}
+                                                onChange={(e) => updateBullet(exp.id, bulletIdx, e.target.value)}
+                                                style={{...inputStyle, flex: 1}}
+                                                onFocus={focusInput} onBlur={blurInput}/>
+                                            {(exp.bullets || ['']).length > 1 && (
+                                                <button
+                                                    onClick={() => removeBullet(exp.id, bulletIdx)}
+                                                    style={{
+                                                        backgroundColor: '#ef444411',
+                                                        border: '1px solid #ef444433',
+                                                        color: '#ef4444',
+                                                        padding: '6px 10px',
+                                                        borderRadius: '6px',
+                                                        fontSize: '12px',
+                                                        cursor: 'pointer',
+                                                        flexShrink: 0,
+                                                    }}>
+                                                    ✕
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button onClick={() => addBullet(exp.id)}
+                                            style={{...addButtonStyle, marginTop: '4px'}}>
+                                        + Add Bullet
+                                    </button>
+                                </div>
+
                                 {resumeData.experience.length > 1 && (
-                                    <button onClick={() => removeExperience(exp.id)} style={removeButtonStyle}>
-                                        Remove
+                                    <button onClick={() => removeExperience(exp.id)}
+                                            style={{...removeButtonStyle, marginTop: '16px'}}>
+                                        Remove Position
                                     </button>
                                 )}
                             </div>
@@ -983,8 +1094,8 @@ const ResumeFormPage = () => {
                         onUpdate={(field, value) => setResumeData(prev => ({...prev, [field]: value}))}
                     />
                 ) : null}
-                <div style={{ display: mode === 'ai' ? 'block' : 'none' }}>
-                    <AiPanel resumeData={resumeData} />
+                <div style={{display: mode === 'ai' ? 'block' : 'none'}}>
+                    <AiPanel resumeData={resumeData}/>
                 </div>
             </div>
 
