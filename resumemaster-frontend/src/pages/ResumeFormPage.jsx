@@ -258,16 +258,16 @@ const ResumeFormPage = () => {
         clone.style.borderRadius = '0'
         clone.style.overflow = 'visible'
         clone.style.height = 'auto'
+        clone.style.minHeight = '0'
 
-        // Force all children to have visible overflow too
-        clone.querySelectorAll('*').forEach(el => {
-            const style = window.getComputedStyle(el)
-            if (style.overflow === 'hidden') {
-                el.style.overflow = 'visible'
-            }
-        })
-
+        // Append FIRST so getComputedStyle works
         document.body.appendChild(clone)
+
+        // Now fix overflow on all children
+        clone.querySelectorAll('*').forEach(el => {
+            el.style.overflow = 'visible'
+            el.style.whiteSpace = 'normal'
+        })
 
         const options = {
             margin: 0,
@@ -281,6 +281,7 @@ const ResumeFormPage = () => {
                 scrollY: 0,
                 width: 794,
                 backgroundColor: '#ffffff',
+                windowWidth: 794,
             },
             jsPDF: {
                 unit: 'mm',
@@ -293,7 +294,6 @@ const ResumeFormPage = () => {
             document.body.removeChild(clone)
         })
     }
-
     const focusInput = (e) => e.target.style.borderColor = '#7c3aed'
     const blurInput = (e) => e.target.style.borderColor = '#2a2a3a'
 
