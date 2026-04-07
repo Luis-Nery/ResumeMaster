@@ -21,6 +21,18 @@ const MinimalTemplate = ({
     const filteredExperience = experience.filter(e => e.company || e.title)
     const filteredEducation = education.filter(e => e.school || e.degree)
 
+    const contactFields = [
+        personalInfo.email,
+        personalInfo.phone,
+        personalInfo.location,
+        personalInfo.linkedin,
+        personalInfo.github,
+    ].filter(Boolean)
+
+    const contactText = contactFields.join('   |   ')
+    const base = parseFloat(fs.small) || 11
+    const contactFontSize = Math.min(base, Math.max(7, 560 / Math.max(1, contactText.length)))
+
     return (
         <div style={{
             fontFamily: font,
@@ -58,29 +70,14 @@ const MinimalTemplate = ({
                     marginBottom: '8px',
                 }}/>
                 <p style={{
-                    fontSize: fs.small,
+                    fontSize: contactFontSize + 'px',
                     color: '#555',
                     margin: 0,
                     letterSpacing: '0.03em',
                     whiteSpace: 'nowrap',
                     width: '100%',
-                    display: 'block',
-                    transform: `scaleX(${Math.min(1, 90 / Math.max(1, [
-                        personalInfo.email,
-                        personalInfo.phone,
-                        personalInfo.location,
-                        personalInfo.linkedin,
-                        personalInfo.github,
-                    ].filter(Boolean).join(' | ').length))})`,
-                    transformOrigin: 'left top',
                 }}>
-                    {[
-                        personalInfo.email,
-                        personalInfo.phone,
-                        personalInfo.location,
-                        personalInfo.linkedin,
-                        personalInfo.github,
-                    ].filter(Boolean).join('   |   ')}
+                    {contactText}
                 </p>
             </div>
 

@@ -28,6 +28,18 @@ const ClassicTemplate = ({
         paddingBottom: '4px',
     }
 
+    const contactFields = [
+        personalInfo.email,
+        personalInfo.phone,
+        personalInfo.location,
+        personalInfo.linkedin,
+        personalInfo.github,
+    ].filter(Boolean)
+
+    const contactText = contactFields.join('   |   ')
+    const base = parseFloat(fs.small) || 12
+    const contactFontSize = Math.min(base, Math.max(7, 560 / Math.max(1, contactText.length)))
+
     return (
         <div style={{
             fontFamily: font,
@@ -62,29 +74,14 @@ const ClassicTemplate = ({
                     {personalInfo.firstName || 'Your'} {personalInfo.lastName || 'Name'}
                 </h1>
                 <p style={{
-                    fontSize: fs.small,
+                    fontSize: contactFontSize + 'px',
                     color: '#555',
                     margin: 0,
                     textAlign: 'center',
                     whiteSpace: 'nowrap',
                     width: '100%',
-                    display: 'block',
-                    transform: `scaleX(${Math.min(1, 90 / Math.max(1, [
-                        personalInfo.email,
-                        personalInfo.phone,
-                        personalInfo.location,
-                        personalInfo.linkedin,
-                        personalInfo.github,
-                    ].filter(Boolean).join(' | ').length))})`,
-                    transformOrigin: 'center top',
                 }}>
-                    {[
-                        personalInfo.email,
-                        personalInfo.phone,
-                        personalInfo.location,
-                        personalInfo.linkedin,
-                        personalInfo.github,
-                    ].filter(Boolean).join('   |   ')}
+                    {contactText}
                 </p>
             </div>
 
