@@ -136,7 +136,8 @@ const ResumeFormPage = () => {
                     setResumeData(parsed.resumeData || emptyResumeData)
                     setCurrentStep(parsed.currentStep || 1)
                     setVisitedSteps(new Set(parsed.visitedSteps || [1]))
-                } catch (e) {}
+                } catch (e) {
+                }
             }
         }
     }, [id])
@@ -245,23 +246,52 @@ const ResumeFormPage = () => {
     const handleDownload = async () => {
         const element = document.getElementById('resume-preview').firstElementChild
         if (!element) return
+
         const html2pdf = (await import('html2pdf.js')).default
         const filename = `${resumeData.title || 'resume'}.pdf`
+
         const clone = element.cloneNode(true)
         clone.style.width = '794px'
         clone.style.maxWidth = '794px'
         clone.style.margin = '0'
         clone.style.boxShadow = 'none'
         clone.style.borderRadius = '0'
+        clone.style.overflow = 'visible'
+        clone.style.height = 'auto'
+
+        // Force all children to have visible overflow too
+        clone.querySelectorAll('*').forEach(el => {
+            const style = window.getComputedStyle(el)
+            if (style.overflow === 'hidden') {
+                el.style.overflow = 'visible'
+            }
+        })
+
         document.body.appendChild(clone)
+
         const options = {
             margin: 0,
             filename,
-            image: {type: 'jpeg', quality: 1.0},
-            html2canvas: {scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0, width: 794},
-            jsPDF: {unit: 'mm', format: 'a4', orientation: 'portrait'}
+            image: {type: 'png'},
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                letterRendering: true,
+                scrollX: 0,
+                scrollY: 0,
+                width: 794,
+                backgroundColor: '#ffffff',
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait',
+            }
         }
-        html2pdf().set(options).from(clone).save().then(() => document.body.removeChild(clone))
+
+        html2pdf().set(options).from(clone).save().then(() => {
+            document.body.removeChild(clone)
+        })
     }
 
     const focusInput = (e) => e.target.style.borderColor = '#7c3aed'
@@ -523,13 +553,15 @@ const ResumeFormPage = () => {
                             </div>
                             <div>
                                 <label style={labelStyle}>LinkedIn</label>
-                                <input type="text" placeholder="linkedin.com/in/you" value={resumeData.personalInfo.linkedin}
+                                <input type="text" placeholder="linkedin.com/in/you"
+                                       value={resumeData.personalInfo.linkedin}
                                        onChange={(e) => updatePersonalInfo('linkedin', e.target.value)}
                                        style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                             </div>
                             <div>
                                 <label style={labelStyle}>GitHub</label>
-                                <input type="text" placeholder="github.com/yourusername" value={resumeData.personalInfo.github || ''}
+                                <input type="text" placeholder="github.com/yourusername"
+                                       value={resumeData.personalInfo.github || ''}
                                        onChange={(e) => updatePersonalInfo('github', e.target.value)}
                                        style={inputStyle} onFocus={focusInput} onBlur={blurInput}/>
                             </div>
@@ -575,10 +607,22 @@ const ResumeFormPage = () => {
                                 padding: '20px', borderRadius: '12px', border: '1px solid #2a2a3a',
                                 marginBottom: '16px', backgroundColor: '#0d0d14'
                             }}>
-                                <p style={{fontSize: '12px', color: '#8b8ba7', marginBottom: '16px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                                <p style={{
+                                    fontSize: '12px',
+                                    color: '#8b8ba7',
+                                    marginBottom: '16px',
+                                    fontWeight: '600',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em'
+                                }}>
                                     Position {idx + 1}
                                 </p>
-                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px'}}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr',
+                                    gap: '12px',
+                                    marginBottom: '12px'
+                                }}>
                                     <div>
                                         <label style={labelStyle}>Company</label>
                                         <input type="text" placeholder="Google" value={exp.company}
@@ -599,13 +643,22 @@ const ResumeFormPage = () => {
                                     </div>
                                     <div>
                                         <label style={labelStyle}>End Date</label>
-                                        <input type="text" placeholder="Present" value={exp.endDate} disabled={exp.current}
+                                        <input type="text" placeholder="Present" value={exp.endDate}
+                                               disabled={exp.current}
                                                onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
                                                style={{...inputStyle, opacity: exp.current ? 0.4 : 1}}
                                                onFocus={focusInput} onBlur={blurInput}/>
                                     </div>
                                 </div>
-                                <label style={{display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#8b8ba7', marginBottom: '12px', cursor: 'pointer'}}>
+                                <label style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontSize: '13px',
+                                    color: '#8b8ba7',
+                                    marginBottom: '12px',
+                                    cursor: 'pointer'
+                                }}>
                                     <input type="checkbox" checked={exp.current}
                                            onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)}/>
                                     Currently working here
@@ -641,8 +694,17 @@ const ResumeFormPage = () => {
                                 <div>
                                     <label style={labelStyle}>Bullet Points</label>
                                     {(exp.bullets || ['']).map((bullet, bulletIdx) => (
-                                        <div key={bulletIdx} style={{display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px'}}>
-                                            <span style={{color: '#8b8ba7', fontSize: '14px', flexShrink: 0}}>{exp.bulletStyle || '•'}</span>
+                                        <div key={bulletIdx} style={{
+                                            display: 'flex',
+                                            gap: '8px',
+                                            alignItems: 'center',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <span style={{
+                                                color: '#8b8ba7',
+                                                fontSize: '14px',
+                                                flexShrink: 0
+                                            }}>{exp.bulletStyle || '•'}</span>
                                             <input type="text" placeholder="e.g. Reduced API response time by 40%"
                                                    value={bullet}
                                                    onChange={(e) => updateBullet(exp.id, bulletIdx, e.target.value)}
@@ -650,18 +712,29 @@ const ResumeFormPage = () => {
                                                    onFocus={focusInput} onBlur={blurInput}/>
                                             {(exp.bullets || ['']).length > 1 && (
                                                 <button onClick={() => removeBullet(exp.id, bulletIdx)}
-                                                        style={{backgroundColor: '#ef444411', border: '1px solid #ef444433', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', flexShrink: 0}}>
+                                                        style={{
+                                                            backgroundColor: '#ef444411',
+                                                            border: '1px solid #ef444433',
+                                                            color: '#ef4444',
+                                                            padding: '6px 10px',
+                                                            borderRadius: '6px',
+                                                            fontSize: '12px',
+                                                            cursor: 'pointer',
+                                                            flexShrink: 0
+                                                        }}>
                                                     ✕
                                                 </button>
                                             )}
                                         </div>
                                     ))}
-                                    <button onClick={() => addBullet(exp.id)} style={{...addButtonStyle, marginTop: '4px'}}>
+                                    <button onClick={() => addBullet(exp.id)}
+                                            style={{...addButtonStyle, marginTop: '4px'}}>
                                         + Add Bullet
                                     </button>
                                 </div>
                                 {resumeData.experience.length > 1 && (
-                                    <button onClick={() => removeExperience(exp.id)} style={{...removeButtonStyle, marginTop: '16px'}}>
+                                    <button onClick={() => removeExperience(exp.id)}
+                                            style={{...removeButtonStyle, marginTop: '16px'}}>
                                         Remove Position
                                     </button>
                                 )}
@@ -685,12 +758,24 @@ const ResumeFormPage = () => {
                                 padding: '20px', borderRadius: '12px', border: '1px solid #2a2a3a',
                                 marginBottom: '16px', backgroundColor: '#0d0d14'
                             }}>
-                                <p style={{fontSize: '12px', color: '#8b8ba7', marginBottom: '16px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                                <p style={{
+                                    fontSize: '12px',
+                                    color: '#8b8ba7',
+                                    marginBottom: '16px',
+                                    fontWeight: '600',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em'
+                                }}>
                                     School {idx + 1}
                                 </p>
 
                                 {/* Row 1: School + Degree */}
-                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px'}}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 1fr',
+                                    gap: '12px',
+                                    marginBottom: '12px'
+                                }}>
                                     <div>
                                         <label style={labelStyle}>School</label>
                                         <input type="text" placeholder="MIT" value={edu.school}
@@ -706,7 +791,12 @@ const ResumeFormPage = () => {
                                 </div>
 
                                 {/* Row 2: Field + GPA + Start + End all in one row */}
-                                <div style={{display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '12px', marginBottom: '16px'}}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '2fr 1fr 1fr 1fr',
+                                    gap: '12px',
+                                    marginBottom: '16px'
+                                }}>
                                     <div>
                                         <label style={labelStyle}>Field of Study</label>
                                         <input type="text" placeholder="Computer Science" value={edu.field}
@@ -757,8 +847,17 @@ const ResumeFormPage = () => {
                                 <div>
                                     <label style={labelStyle}>Academic Accomplishments (optional)</label>
                                     {(edu.accomplishmentBullets || ['']).map((bullet, bulletIdx) => (
-                                        <div key={bulletIdx} style={{display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px'}}>
-                                            <span style={{color: '#8b8ba7', fontSize: '14px', flexShrink: 0}}>{edu.accomplishmentBulletStyle || '•'}</span>
+                                        <div key={bulletIdx} style={{
+                                            display: 'flex',
+                                            gap: '8px',
+                                            alignItems: 'center',
+                                            marginBottom: '8px'
+                                        }}>
+                                            <span style={{
+                                                color: '#8b8ba7',
+                                                fontSize: '14px',
+                                                flexShrink: 0
+                                            }}>{edu.accomplishmentBulletStyle || '•'}</span>
                                             <input type="text"
                                                    placeholder="e.g. Dean's List, Magna Cum Laude..."
                                                    value={bullet}
@@ -767,19 +866,30 @@ const ResumeFormPage = () => {
                                                    onFocus={focusInput} onBlur={blurInput}/>
                                             {(edu.accomplishmentBullets || ['']).length > 1 && (
                                                 <button onClick={() => removeAccomplishment(edu.id, bulletIdx)}
-                                                        style={{backgroundColor: '#ef444411', border: '1px solid #ef444433', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', flexShrink: 0}}>
+                                                        style={{
+                                                            backgroundColor: '#ef444411',
+                                                            border: '1px solid #ef444433',
+                                                            color: '#ef4444',
+                                                            padding: '6px 10px',
+                                                            borderRadius: '6px',
+                                                            fontSize: '12px',
+                                                            cursor: 'pointer',
+                                                            flexShrink: 0
+                                                        }}>
                                                     ✕
                                                 </button>
                                             )}
                                         </div>
                                     ))}
-                                    <button onClick={() => addAccomplishment(edu.id)} style={{...addButtonStyle, marginTop: '4px'}}>
+                                    <button onClick={() => addAccomplishment(edu.id)}
+                                            style={{...addButtonStyle, marginTop: '4px'}}>
                                         + Add Accomplishment
                                     </button>
                                 </div>
 
                                 {resumeData.education.length > 1 && (
-                                    <button onClick={() => removeEducation(edu.id)} style={{...removeButtonStyle, marginTop: '16px'}}>
+                                    <button onClick={() => removeEducation(edu.id)}
+                                            style={{...removeButtonStyle, marginTop: '16px'}}>
                                         Remove
                                     </button>
                                 )}
@@ -867,7 +977,11 @@ const ResumeFormPage = () => {
                                                     cursor: 'pointer', textAlign: 'center',
                                                 }}>
                                             <div style={{fontSize: '13px', fontWeight: '600'}}>{sep.label}</div>
-                                            <div style={{fontSize: '11px', marginTop: '2px', opacity: 0.7}}>{sep.preview}</div>
+                                            <div style={{
+                                                fontSize: '11px',
+                                                marginTop: '2px',
+                                                opacity: 0.7
+                                            }}>{sep.preview}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -912,7 +1026,12 @@ const ResumeFormPage = () => {
                                 </div>
                                 <label style={labelStyle}>Skills</label>
                                 {cat.items.map((item, itemIdx) => (
-                                    <div key={itemIdx} style={{display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px'}}>
+                                    <div key={itemIdx} style={{
+                                        display: 'flex',
+                                        gap: '8px',
+                                        alignItems: 'center',
+                                        marginBottom: '8px'
+                                    }}>
                                         <input type="text"
                                                placeholder="e.g. Java"
                                                value={item}
@@ -921,14 +1040,29 @@ const ResumeFormPage = () => {
                                                onFocus={focusInput} onBlur={blurInput}/>
                                         {cat.items.length > 1 && (
                                             <button onClick={() => removeCategoryItem(cat.id, itemIdx)}
-                                                    style={{backgroundColor: '#ef444411', border: '1px solid #ef444433', color: '#ef4444', padding: '6px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', flexShrink: 0}}>
+                                                    style={{
+                                                        backgroundColor: '#ef444411',
+                                                        border: '1px solid #ef444433',
+                                                        color: '#ef4444',
+                                                        padding: '6px 10px',
+                                                        borderRadius: '6px',
+                                                        fontSize: '12px',
+                                                        cursor: 'pointer',
+                                                        flexShrink: 0
+                                                    }}>
                                                 ✕
                                             </button>
                                         )}
                                     </div>
                                 ))}
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px'}}>
-                                    <button onClick={() => addCategoryItem(cat.id)} style={{...addButtonStyle, marginTop: '0'}}>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginTop: '4px'
+                                }}>
+                                    <button onClick={() => addCategoryItem(cat.id)}
+                                            style={{...addButtonStyle, marginTop: '0'}}>
                                         + Add Skill
                                     </button>
                                     {skills.categories.length > 1 && (
@@ -953,23 +1087,54 @@ const ResumeFormPage = () => {
                         <p style={{fontSize: '14px', color: '#8b8ba7', marginBottom: '32px'}}>
                             Review your resume on the right. When you're happy with it, save it.
                         </p>
-                        <div style={{backgroundColor: '#0d0d14', border: '1px solid #2a2a3a', borderRadius: '12px', padding: '20px', marginBottom: '24px'}}>
+                        <div style={{
+                            backgroundColor: '#0d0d14',
+                            border: '1px solid #2a2a3a',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            marginBottom: '24px'
+                        }}>
                             {[
                                 {label: 'Title', value: resumeData.title || 'Not set'},
-                                {label: 'Name', value: `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName}`.trim() || 'Not set'},
+                                {
+                                    label: 'Name',
+                                    value: `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName}`.trim() || 'Not set'
+                                },
                                 {label: 'Email', value: resumeData.personalInfo.email || 'Not set'},
-                                {label: 'Experience', value: `${resumeData.experience.filter(e => e.company).length} position(s)`},
-                                {label: 'Education', value: `${resumeData.education.filter(e => e.school).length} school(s)`},
-                                {label: 'Skills', value: `${skills.categories.reduce((acc, c) => acc + c.items.filter(Boolean).length, 0)} skill(s)`},
+                                {
+                                    label: 'Experience',
+                                    value: `${resumeData.experience.filter(e => e.company).length} position(s)`
+                                },
+                                {
+                                    label: 'Education',
+                                    value: `${resumeData.education.filter(e => e.school).length} school(s)`
+                                },
+                                {
+                                    label: 'Skills',
+                                    value: `${skills.categories.reduce((acc, c) => acc + c.items.filter(Boolean).length, 0)} skill(s)`
+                                },
                             ].map((item, idx, arr) => (
-                                <div key={item.label} style={{display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: idx < arr.length - 1 ? '1px solid #2a2a3a' : 'none'}}>
+                                <div key={item.label} style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    padding: '10px 0',
+                                    borderBottom: idx < arr.length - 1 ? '1px solid #2a2a3a' : 'none'
+                                }}>
                                     <span style={{fontSize: '13px', color: '#8b8ba7'}}>{item.label}</span>
                                     <span style={{fontSize: '13px', color: '#f0f0ff'}}>{item.value}</span>
                                 </div>
                             ))}
                         </div>
                         {error && (
-                            <div style={{backgroundColor: '#2a1a1a', border: '1px solid #ef4444', color: '#ef4444', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', marginBottom: '16px'}}>
+                            <div style={{
+                                backgroundColor: '#2a1a1a',
+                                border: '1px solid #ef4444',
+                                color: '#ef4444',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                fontSize: '13px',
+                                marginBottom: '16px'
+                            }}>
                                 {error}
                             </div>
                         )}
@@ -990,17 +1155,45 @@ const ResumeFormPage = () => {
     }
 
     if (loading) return (
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 64px)', backgroundColor: '#0d0d14'}}>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 'calc(100vh - 64px)',
+            backgroundColor: '#0d0d14'
+        }}>
             <p style={{color: '#8b8ba7'}}>Loading resume...</p>
         </div>
     )
 
     return (
         <div style={{display: 'flex', height: 'calc(100vh - 64px)', backgroundColor: '#0d0d14'}}>
-            <div style={{width: '50%', overflowY: 'auto', padding: '40px', borderRight: '1px solid #2a2a3a', display: 'flex', flexDirection: 'column'}}>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px'}}>
-                    <div style={{display: 'flex', gap: '4px', backgroundColor: '#0d0d14', padding: '4px', borderRadius: '10px', border: '1px solid #2a2a3a'}}>
-                        {[{id: 'write', label: '✏️ Write'}, {id: 'design', label: '🎨 Design'}, {id: 'ai', label: '✨ AI'}].map(m => (
+            <div style={{
+                width: '50%',
+                overflowY: 'auto',
+                padding: '40px',
+                borderRight: '1px solid #2a2a3a',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '32px'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        gap: '4px',
+                        backgroundColor: '#0d0d14',
+                        padding: '4px',
+                        borderRadius: '10px',
+                        border: '1px solid #2a2a3a'
+                    }}>
+                        {[{id: 'write', label: '✏️ Write'}, {id: 'design', label: '🎨 Design'}, {
+                            id: 'ai',
+                            label: '✨ AI'
+                        }].map(m => (
                             <button key={m.id} onClick={() => setMode(m.id)} style={{
                                 padding: '8px 20px', borderRadius: '7px', border: 'none', fontSize: '13px',
                                 fontWeight: '500', cursor: 'pointer',
@@ -1017,8 +1210,14 @@ const ResumeFormPage = () => {
                         padding: '8px 16px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', gap: '6px',
                     }}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = '#7c3aed44'; e.currentTarget.style.color = '#f0f0ff' }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a3a'; e.currentTarget.style.color = '#8b8ba7' }}>
+                            onMouseEnter={e => {
+                                e.currentTarget.style.borderColor = '#7c3aed44';
+                                e.currentTarget.style.color = '#f0f0ff'
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.borderColor = '#2a2a3a';
+                                e.currentTarget.style.color = '#8b8ba7'
+                            }}>
                         ↓ Download PDF
                     </button>
                 </div>
@@ -1026,17 +1225,34 @@ const ResumeFormPage = () => {
                 {mode === 'write' ? (
                     <>
                         <div style={{marginBottom: '40px'}}>
-                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px'}}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '12px'
+                            }}>
                                 {steps.map((step, idx) => {
                                     const clickable = isStepClickable(step.id)
                                     const completed = visitedSteps.has(step.id) && step.id < currentStep
                                     const active = step.id === currentStep
                                     return (
-                                        <div key={step.id} style={{display: 'flex', alignItems: 'center', flex: idx < steps.length - 1 ? 1 : 0}}>
-                                            <div onClick={() => clickable && handleStepClick(step.id)} title={step.title} style={{
-                                                width: '28px', height: '28px', borderRadius: '50%', display: 'flex',
-                                                alignItems: 'center', justifyContent: 'center', fontSize: '12px',
-                                                fontWeight: '600', flexShrink: 0, cursor: clickable ? 'pointer' : 'not-allowed',
+                                        <div key={step.id} style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            flex: idx < steps.length - 1 ? 1 : 0
+                                        }}>
+                                            <div onClick={() => clickable && handleStepClick(step.id)}
+                                                 title={step.title} style={{
+                                                width: '28px',
+                                                height: '28px',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '12px',
+                                                fontWeight: '600',
+                                                flexShrink: 0,
+                                                cursor: clickable ? 'pointer' : 'not-allowed',
                                                 transition: 'all 0.2s ease',
                                                 backgroundColor: active ? '#7c3aed' : completed ? '#4f46e5' : clickable ? '#16161f' : '#0d0d14',
                                                 border: active ? '2px solid #a78bfa' : completed ? '2px solid #4f46e5' : clickable ? '2px solid #2a2a3a' : '2px solid #1a1a24',
@@ -1045,7 +1261,13 @@ const ResumeFormPage = () => {
                                                 {completed ? '✓' : step.id}
                                             </div>
                                             {idx < steps.length - 1 && (
-                                                <div style={{flex: 1, height: '2px', backgroundColor: completed ? '#4f46e5' : '#2a2a3a', margin: '0 4px', transition: 'background-color 0.3s ease'}}/>
+                                                <div style={{
+                                                    flex: 1,
+                                                    height: '2px',
+                                                    backgroundColor: completed ? '#4f46e5' : '#2a2a3a',
+                                                    margin: '0 4px',
+                                                    transition: 'background-color 0.3s ease'
+                                                }}/>
                                             )}
                                         </div>
                                     )
@@ -1057,9 +1279,24 @@ const ResumeFormPage = () => {
                             </p>
                         </div>
                         <div style={{flex: 1}}>{renderStep()}</div>
-                        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '40px', paddingTop: '24px', borderTop: '1px solid #2a2a3a'}}>
-                            <button onClick={() => currentStep === 1 ? navigate('/dashboard') : setCurrentStep(prev => prev - 1)}
-                                    style={{backgroundColor: '#16161f', border: '1px solid #2a2a3a', color: '#8b8ba7', padding: '10px 20px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer'}}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginTop: '40px',
+                            paddingTop: '24px',
+                            borderTop: '1px solid #2a2a3a'
+                        }}>
+                            <button
+                                onClick={() => currentStep === 1 ? navigate('/dashboard') : setCurrentStep(prev => prev - 1)}
+                                style={{
+                                    backgroundColor: '#16161f',
+                                    border: '1px solid #2a2a3a',
+                                    color: '#8b8ba7',
+                                    padding: '10px 20px',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    cursor: 'pointer'
+                                }}>
                                 {currentStep === 1 ? 'Cancel' : '← Back'}
                             </button>
                             {currentStep < steps.length && (
@@ -1074,7 +1311,8 @@ const ResumeFormPage = () => {
                         </div>
                     </>
                 ) : mode === 'design' ? (
-                    <DesignPanel resumeData={resumeData} onUpdate={(field, value) => setResumeData(prev => ({...prev, [field]: value}))}/>
+                    <DesignPanel resumeData={resumeData}
+                                 onUpdate={(field, value) => setResumeData(prev => ({...prev, [field]: value}))}/>
                 ) : null}
                 <div style={{display: mode === 'ai' ? 'block' : 'none'}}>
                     <AiPanel resumeData={resumeData}/>
