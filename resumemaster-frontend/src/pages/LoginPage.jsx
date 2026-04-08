@@ -20,7 +20,7 @@ const LoginPage = () => {
 
         try {
             const response = await api.post('/auth/login', { email, password })
-            login(response.data.authToken, response.data.userId)
+            login(response.data.authToken, response.data.userId, email)
             navigate('/dashboard')
         } catch (err) {
             setError('Invalid email or password')

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const SettingsPage = () => {
-    const { logout } = useAuth()
+    const { logout, email } = useAuth()
     const navigate = useNavigate()
 
     const handleLogout = () => {
@@ -39,7 +39,7 @@ const SettingsPage = () => {
                                 Email
                             </p>
                             <p className="text-xs mt-1" style={{ color: '#8b8ba7' }}>
-                                Your registered email address
+                                {email || 'Not available'}
                             </p>
                         </div>
                     </div>
