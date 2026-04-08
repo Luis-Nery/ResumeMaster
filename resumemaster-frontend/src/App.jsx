@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import SettingsPage from './pages/SettingsPage'
 import ResumeFormPage from './pages/ResumeFormPage'
+import LandingPage from './pages/LandingPage'
 import Navbar from './components/Navbar'
 
 const ProtectedRoute = ({children}) => {
@@ -39,7 +40,7 @@ const App = () => {
                         <SettingsPage/>
                     </ProtectedRoute>
                 }/>
-                <Route path="/" element={<Navigate to="/login"/>}/>
+                <Route path="/" element={<LandingPage/>}/>
             </Routes>
         </div>
     )
