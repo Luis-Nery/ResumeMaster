@@ -21,9 +21,11 @@ const MinimalTemplate = ({
     }
 
     const gap = sectionSpacing || '24px'
-
-    const filteredExperience = experience.filter(e => e.company || e.title)
     const filteredEducation = education.filter(e => e.school || e.degree)
+
+    // ─── Experience split ─────────────────────────────────────────────────────
+    const workEntries = experience.filter(e => (e.type || 'work') === 'work' && (e.company || e.title))
+    const projectEntries = experience.filter(e => e.type === 'project' && (e.company || e.title))
 
     const contactFields = [
         personalInfo.email,
@@ -100,11 +102,7 @@ const MinimalTemplate = ({
 
         if (displayMode === 'columns') {
             return (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-                    gap: '8px 16px',
-                }}>
+                <div style={{display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: '8px 16px'}}>
                     {categories.filter(c => c.items.some(Boolean)).map(cat => (
                         <div key={cat.id} style={{minWidth: 0}}>
                             {cat.name && (
@@ -125,6 +123,52 @@ const MinimalTemplate = ({
         }
     }
 
+    // ─── Shared entry renderer ────────────────────────────────────────────────
+    const renderEntry = (exp, idx, arr) => {
+        const isLast = idx === arr.length - 1
+        return (
+            <div key={exp.id} style={{
+                marginBottom: isLast ? '0' : '16px',
+                paddingBottom: isLast ? '0' : '16px',
+                borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
+            }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px'}}>
+                    <strong style={{fontSize: fs.name, color: '#1a1a1a', fontWeight: '600'}}>{exp.title}</strong>
+                    <span style={{fontSize: fs.small, color: '#777', letterSpacing: '0.02em'}}>
+                        {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
+                    </span>
+                </div>
+                <p style={{fontSize: fs.small, color: accentColor === '#111111' ? '#666' : accentColor, margin: '0 0 4px 0', fontWeight: '500'}}>
+                    {exp.company}
+                    {exp.url && (
+                        <span style={{fontWeight: '400', color: '#888'}}> &nbsp;|&nbsp; {exp.url}</span>
+                    )}
+                </p>
+                {exp.description && (
+                    <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#444', margin: '0 0 6px 0'}}>
+                        {exp.description}
+                    </p>
+                )}
+                {exp.bullets && exp.bullets.some(b => b.trim()) && (
+                    <div style={{margin: 0}}>
+                        {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
+                            <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#444'}}>
+                                <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
+                                <span>{bullet}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const sectionLabel = (text) => (
+        <p style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em', color: accentColor, marginBottom: '12px'}}>
+            {text}
+        </p>
+    )
+
     return (
         <div style={{
             fontFamily: font,
@@ -139,37 +183,18 @@ const MinimalTemplate = ({
             color: '#1a1a1a',
             fontSize: fs.base,
             boxSizing: 'border-box',
-            overflow: 'hidden',
         }}>
 
             {/* Header */}
             <div style={{marginBottom: gap, overflow: 'hidden', width: '100%'}}>
-                <h1 style={{
-                    fontSize: fs.title,
-                    fontWeight: '200',
-                    letterSpacing: '0.1em',
-                    color: '#1a1a1a',
-                    margin: '0 0 8px 0',
-                    textTransform: 'uppercase',
-                    fontFamily: font,
-                }}>
+                <h1 style={{fontSize: fs.title, fontWeight: '200', letterSpacing: '0.1em', color: '#1a1a1a', margin: '0 0 8px 0', textTransform: 'uppercase', fontFamily: font}}>
                     {personalInfo.firstName || 'Your'} {personalInfo.lastName || 'Name'}
                 </h1>
-                <div style={{
-                    width: '100%',
-                    height: '1px',
-                    background: `linear-gradient(to right, ${accentColor}, transparent)`,
-                    marginBottom: '8px',
-                }}/>
+                <div style={{width: '100%', height: '1px', background: `linear-gradient(to right, ${accentColor}, transparent)`, marginBottom: '8px'}}/>
                 <p ref={contactRef} style={{
-                    fontSize: (contactFontSize || baseSize) + 'px',
-                    color: '#555',
-                    margin: 0,
-                    letterSpacing: '0.03em',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    width: '100%',
-                    boxSizing: 'border-box',
+                    fontSize: (contactFontSize || baseSize) + 'px', color: '#555', margin: 0,
+                    letterSpacing: '0.03em', whiteSpace: 'nowrap', overflow: 'hidden',
+                    width: '100%', boxSizing: 'border-box',
                 }}>
                     {contactText}
                 </p>
@@ -181,62 +206,30 @@ const MinimalTemplate = ({
                     <p style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em', color: accentColor, marginBottom: '8px'}}>
                         Profile
                     </p>
-                    <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>
-                        {summary}
-                    </p>
+                    <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>{summary}</p>
                 </div>
             )}
 
-            {/* Experience */}
-            {filteredExperience.length > 0 && (
+            {/* Work Experience */}
+            {workEntries.length > 0 && (
                 <div style={{marginBottom: gap}}>
-                    <p style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em', color: accentColor, marginBottom: '12px'}}>
-                        Experience
-                    </p>
-                    {filteredExperience.map((exp, idx) => {
-                        const isLast = idx === filteredExperience.length - 1
-                        return (
-                            <div key={exp.id} style={{
-                                marginBottom: isLast ? '0' : '16px',
-                                paddingBottom: isLast ? '0' : '16px',
-                                borderBottom: isLast ? 'none' : '1px solid #f0f0f0',
-                            }}>
-                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px'}}>
-                                    <strong style={{fontSize: fs.name, color: '#1a1a1a', fontWeight: '600'}}>{exp.title}</strong>
-                                    <span style={{fontSize: fs.small, color: '#777', letterSpacing: '0.02em'}}>
-                                        {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
-                                    </span>
-                                </div>
-                                <p style={{fontSize: fs.small, color: accentColor === '#111111' ? '#666' : accentColor, margin: '0 0 6px 0', fontWeight: '500'}}>
-                                    {exp.company}
-                                </p>
-                                {exp.description && (
-                                    <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#444', margin: '0 0 6px 0'}}>
-                                        {exp.description}
-                                    </p>
-                                )}
-                                {exp.bullets && exp.bullets.some(b => b.trim()) && (
-                                    <div style={{margin: 0}}>
-                                        {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
-                                            <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#444'}}>
-                                                <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
-                                                <span>{bullet}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )
-                    })}
+                    {sectionLabel('Experience')}
+                    {workEntries.map((exp, idx) => renderEntry(exp, idx, workEntries))}
+                </div>
+            )}
+
+            {/* Projects */}
+            {projectEntries.length > 0 && (
+                <div style={{marginBottom: gap}}>
+                    {sectionLabel('Projects')}
+                    {projectEntries.map((exp, idx) => renderEntry(exp, idx, projectEntries))}
                 </div>
             )}
 
             {/* Education */}
             {filteredEducation.length > 0 && (
                 <div style={{marginBottom: gap}}>
-                    <p style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em', color: accentColor, marginBottom: '12px'}}>
-                        Education
-                    </p>
+                    {sectionLabel('Education')}
                     {filteredEducation.map((edu, idx) => {
                         const isLast = idx === filteredEducation.length - 1
                         return (
@@ -266,9 +259,7 @@ const MinimalTemplate = ({
                                     </div>
                                 )}
                                 {edu.accomplishments && !edu.accomplishmentBullets && (
-                                    <p style={{fontSize: fs.small, color: '#666', lineHeight: '1.6', margin: 0}}>
-                                        {edu.accomplishments}
-                                    </p>
+                                    <p style={{fontSize: fs.small, color: '#666', lineHeight: '1.6', margin: 0}}>{edu.accomplishments}</p>
                                 )}
                             </div>
                         )

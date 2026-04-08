@@ -9,8 +9,11 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         label: fontSizes?.label || '10px',
     }
 
-    const filteredExperience = experience.filter(e => e.company || e.title)
     const filteredEducation = education.filter(e => e.school || e.degree)
+
+    // ─── Experience split ─────────────────────────────────────────────────────
+    const workEntries = experience.filter(e => (e.type || 'work') === 'work' && (e.company || e.title))
+    const projectEntries = experience.filter(e => e.type === 'project' && (e.company || e.title))
 
     // ─── Skills renderer ─────────────────────────────────────────────────────
     const isLegacySkills = Array.isArray(skills)
@@ -22,7 +25,6 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         ? skills.some(Boolean)
         : skillsData.categories.some(c => c.items.some(Boolean))
 
-    // Modern sidebar is narrow — columns mode falls back to vertical
     const renderSkills = () => {
         const {displayMode, bulletStyle, separator, categories} = skillsData
         const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '
@@ -61,6 +63,48 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
             </div>
         )
     }
+
+    // ─── Shared entry renderer ────────────────────────────────────────────────
+    const renderEntry = (exp, idx, arr) => {
+        const isLast = idx === arr.length - 1
+        return (
+            <div key={exp.id} style={{marginBottom: isLast ? '0' : '16px', paddingLeft: '12px', borderLeft: `3px solid ${accentColor}`}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
+                    <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{exp.title}</strong>
+                    <span style={{fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px'}}>
+                        {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
+                    </span>
+                </div>
+                <div style={{fontSize: fs.small, color: accentColor, fontWeight: '600', marginBottom: '4px'}}>
+                    {exp.company}
+                    {exp.url && (
+                        <span style={{fontWeight: '400', color: '#888'}}> &nbsp;|&nbsp; {exp.url}</span>
+                    )}
+                </div>
+                {exp.description && (
+                    <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: '0 0 6px 0'}}>
+                        {exp.description}
+                    </p>
+                )}
+                {exp.bullets && exp.bullets.some(b => b.trim()) && (
+                    <div style={{margin: 0}}>
+                        {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
+                            <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#555'}}>
+                                <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
+                                <span>{bullet}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const sectionTitle = (text) => (
+        <h2 style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: accentColor, marginBottom: '12px', fontFamily: 'Arial, sans-serif'}}>
+            {text}
+        </h2>
+    )
 
     return (
         <div style={{
@@ -137,61 +181,31 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                 {/* Summary */}
                 {summary && (
                     <div style={{marginBottom: sectionSpacing || '24px'}}>
-                        <h2 style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: accentColor, marginBottom: '12px', fontFamily: 'Arial, sans-serif'}}>
-                            About Me
-                        </h2>
-                        <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#444', margin: 0}}>
-                            {summary}
-                        </p>
+                        {sectionTitle('About Me')}
+                        <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#444', margin: 0}}>{summary}</p>
                     </div>
                 )}
 
-                {/* Experience */}
-                {filteredExperience.length > 0 && (
+                {/* Work Experience */}
+                {workEntries.length > 0 && (
                     <div style={{marginBottom: sectionSpacing || '24px'}}>
-                        <h2 style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: accentColor, marginBottom: '12px', fontFamily: 'Arial, sans-serif'}}>
-                            Experience
-                        </h2>
-                        {filteredExperience.map((exp, idx) => {
-                            const isLast = idx === filteredExperience.length - 1
-                            return (
-                                <div key={exp.id} style={{marginBottom: isLast ? '0' : '16px', paddingLeft: '12px', borderLeft: `3px solid ${accentColor}`}}>
-                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
-                                        <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{exp.title}</strong>
-                                        <span style={{fontSize: fs.small, color: '#888', whiteSpace: 'nowrap', marginLeft: '12px'}}>
-                                            {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
-                                        </span>
-                                    </div>
-                                    <div style={{fontSize: fs.small, color: accentColor, fontWeight: '600', marginBottom: '4px'}}>
-                                        {exp.company}
-                                    </div>
-                                    {exp.description && (
-                                        <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#555', margin: '0 0 6px 0'}}>
-                                            {exp.description}
-                                        </p>
-                                    )}
-                                    {exp.bullets && exp.bullets.some(b => b.trim()) && (
-                                        <div style={{margin: 0}}>
-                                            {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
-                                                <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#555'}}>
-                                                    <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
-                                                    <span>{bullet}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )
-                        })}
+                        {sectionTitle('Experience')}
+                        {workEntries.map((exp, idx) => renderEntry(exp, idx, workEntries))}
+                    </div>
+                )}
+
+                {/* Projects */}
+                {projectEntries.length > 0 && (
+                    <div style={{marginBottom: sectionSpacing || '24px'}}>
+                        {sectionTitle('Projects')}
+                        {projectEntries.map((exp, idx) => renderEntry(exp, idx, projectEntries))}
                     </div>
                 )}
 
                 {/* Education */}
                 {filteredEducation.length > 0 && (
                     <div style={{marginBottom: sectionSpacing || '24px'}}>
-                        <h2 style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: accentColor, marginBottom: '12px', fontFamily: 'Arial, sans-serif'}}>
-                            Education
-                        </h2>
+                        {sectionTitle('Education')}
                         {filteredEducation.map((edu, idx) => {
                             const isLast = idx === filteredEducation.length - 1
                             return (
@@ -217,9 +231,7 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
                                         </div>
                                     )}
                                     {edu.accomplishments && !edu.accomplishmentBullets && (
-                                        <p style={{fontSize: fs.small, color: '#777', lineHeight: '1.6', margin: 0}}>
-                                            {edu.accomplishments}
-                                        </p>
+                                        <p style={{fontSize: fs.small, color: '#777', lineHeight: '1.6', margin: 0}}>{edu.accomplishments}</p>
                                     )}
                                 </div>
                             )

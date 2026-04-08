@@ -55,6 +55,44 @@ const ClassicTemplate = ({
         setContactFontSize(size)
     }, [contactText, baseSize])
 
+    // ─── Experience split ─────────────────────────────────────────────────────
+    const workEntries = experience.filter(e => (e.type || 'work') === 'work' && (e.company || e.title))
+    const projectEntries = experience.filter(e => e.type === 'project' && (e.company || e.title))
+
+    const renderExperienceEntry = (exp) => (
+        <div key={exp.id} style={{marginBottom: '16px'}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
+                <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{exp.title}</strong>
+                <span style={{fontSize: fs.small, color: '#777', whiteSpace: 'nowrap', marginLeft: '16px'}}>
+                    {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
+                </span>
+            </div>
+            <div style={{fontSize: fs.base, color: '#555', fontStyle: 'italic', marginBottom: '4px'}}>
+                {exp.company}
+                {exp.url && (
+                    <span style={{fontStyle: 'normal', color: accentColor === '#1a1a1a' ? '#555' : accentColor}}>
+                        {' '}&nbsp;|&nbsp; {exp.url}
+                    </span>
+                )}
+            </div>
+            {exp.description && (
+                <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#333', margin: '0 0 6px 0'}}>
+                    {exp.description}
+                </p>
+            )}
+            {exp.bullets && exp.bullets.some(b => b.trim()) && (
+                <div style={{margin: 0}}>
+                    {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
+                        <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#333'}}>
+                            <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
+                            <span>{bullet}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+
     // ─── Skills renderer ─────────────────────────────────────────────────────
     const isLegacySkills = Array.isArray(skills)
     const skillsData = isLegacySkills
@@ -107,11 +145,7 @@ const ClassicTemplate = ({
 
         if (displayMode === 'columns') {
             return (
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${colCount}, 1fr)`,
-                    gap: '8px 16px',
-                }}>
+                <div style={{display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: '8px 16px'}}>
                     {categories.filter(c => c.items.some(Boolean)).map(cat => (
                         <div key={cat.id} style={{minWidth: 0}}>
                             {cat.name && (
@@ -146,36 +180,19 @@ const ClassicTemplate = ({
             color: '#1a1a1a',
             fontSize: fs.base,
             boxSizing: 'border-box',
-            overflow: 'hidden',
         }}>
             {/* Header */}
             <div style={{
-                textAlign: 'center',
-                marginBottom: '28px',
-                paddingBottom: '20px',
-                borderBottom: `3px solid ${accentColor}`,
-                width: '100%',
-                overflow: 'hidden',
+                textAlign: 'center', marginBottom: '28px', paddingBottom: '20px',
+                borderBottom: `3px solid ${accentColor}`, width: '100%', overflow: 'hidden',
             }}>
-                <h1 style={{
-                    margin: '0 0 8px 0',
-                    fontSize: fs.title,
-                    fontWeight: '700',
-                    letterSpacing: '0.02em',
-                    color: '#1a1a1a',
-                    fontFamily: font,
-                }}>
+                <h1 style={{margin: '0 0 8px 0', fontSize: fs.title, fontWeight: '700', letterSpacing: '0.02em', color: '#1a1a1a', fontFamily: font}}>
                     {personalInfo.firstName || 'Your'} {personalInfo.lastName || 'Name'}
                 </h1>
                 <p ref={contactRef} style={{
-                    fontSize: (contactFontSize || baseSize) + 'px',
-                    color: '#555',
-                    margin: 0,
-                    textAlign: 'center',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    width: '100%',
-                    boxSizing: 'border-box',
+                    fontSize: (contactFontSize || baseSize) + 'px', color: '#555', margin: 0,
+                    textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden',
+                    width: '100%', boxSizing: 'border-box',
                 }}>
                     {contactText}
                 </p>
@@ -185,44 +202,23 @@ const ClassicTemplate = ({
             {summary && (
                 <div style={{marginBottom: sectionSpacing || '24px'}}>
                     <h2 style={sectionHeader}>Professional Summary</h2>
-                    <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>
-                        {summary}
-                    </p>
+                    <p style={{fontSize: fs.base, lineHeight: '1.7', color: '#333', margin: 0}}>{summary}</p>
                 </div>
             )}
 
-            {/* Experience */}
-            {experience.some(exp => exp.company || exp.title) && (
+            {/* Work Experience */}
+            {workEntries.length > 0 && (
                 <div style={{marginBottom: sectionSpacing || '24px'}}>
                     <h2 style={sectionHeader}>Work Experience</h2>
-                    {experience.filter(exp => exp.company || exp.title).map(exp => (
-                        <div key={exp.id} style={{marginBottom: '16px'}}>
-                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
-                                <strong style={{fontSize: fs.name, color: '#1a1a1a'}}>{exp.title}</strong>
-                                <span style={{fontSize: fs.small, color: '#777', whiteSpace: 'nowrap', marginLeft: '16px'}}>
-                                    {exp.startDate}{exp.startDate && ' — '}{exp.current ? 'Present' : exp.endDate}
-                                </span>
-                            </div>
-                            <div style={{fontSize: fs.base, color: '#555', fontStyle: 'italic', marginBottom: '6px'}}>
-                                {exp.company}
-                            </div>
-                            {exp.description && (
-                                <p style={{fontSize: fs.base, lineHeight: '1.6', color: '#333', margin: '0 0 6px 0'}}>
-                                    {exp.description}
-                                </p>
-                            )}
-                            {exp.bullets && exp.bullets.some(b => b.trim()) && (
-                                <div style={{margin: 0}}>
-                                    {exp.bullets.filter(b => b.trim()).map((bullet, i) => (
-                                        <div key={i} style={{display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '3px', fontSize: fs.base, lineHeight: '1.6', color: '#333'}}>
-                                            <span style={{flexShrink: 0, marginTop: '1px'}}>{exp.bulletStyle || '•'}</span>
-                                            <span>{bullet}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
+                    {workEntries.map(renderExperienceEntry)}
+                </div>
+            )}
+
+            {/* Projects */}
+            {projectEntries.length > 0 && (
+                <div style={{marginBottom: sectionSpacing || '24px'}}>
+                    <h2 style={sectionHeader}>Projects</h2>
+                    {projectEntries.map(renderExperienceEntry)}
                 </div>
             )}
 
@@ -252,11 +248,8 @@ const ClassicTemplate = ({
                                     ))}
                                 </div>
                             )}
-                            {/* backward compat for old accomplishments plain text */}
                             {edu.accomplishments && !edu.accomplishmentBullets && (
-                                <p style={{fontSize: fs.small, color: '#555', lineHeight: '1.6', margin: 0}}>
-                                    {edu.accomplishments}
-                                </p>
+                                <p style={{fontSize: fs.small, color: '#555', lineHeight: '1.6', margin: 0}}>{edu.accomplishments}</p>
                             )}
                         </div>
                     ))}
