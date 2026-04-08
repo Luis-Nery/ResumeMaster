@@ -274,7 +274,7 @@ const ResumeFormPage = () => {
             filename,
             image: {type: 'jpeg', quality: 0.95},
             html2canvas: {
-                scale: 2.5,
+                scale: 3,
                 useCORS: true,
                 letterRendering: true,
                 scrollX: 0,
