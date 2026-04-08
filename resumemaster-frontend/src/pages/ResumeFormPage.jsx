@@ -131,28 +131,60 @@ const ResumeFormPage = () => {
         if (id) {
             fetchResume()
         } else {
-            const draft = localStorage.getItem(localKey)
-            if (draft) {
-                try {
-                    const parsed = JSON.parse(draft)
-                    setResumeData(parsed.resumeData || emptyResumeData)
-                    setCurrentStep(parsed.currentStep || 1)
-                    setVisitedSteps(new Set(parsed.visitedSteps || [1]))
-                } catch (e) {
-                }
-            }
+            // Always start fresh — clear any stale new draft
+            localStorage.removeItem(localKey)
+            setResumeData(emptyResumeData)
+            setCurrentStep(1)
+            setVisitedSteps(new Set([1]))
         }
     }, [id])
 
     useEffect(() => {
         if (saveTimeout.current) clearTimeout(saveTimeout.current)
-        saveTimeout.current = setTimeout(() => {
-            localStorage.setItem(localKey, JSON.stringify({
-                resumeData,
-                currentStep,
-                visitedSteps: [...visitedSteps]
-            }))
-        }, 500)
+        saveTimeout.current = setTimeout(async () => {
+            if (resumeId) {
+                // Existing resume — autosave to backend
+                try {
+                    await api.put(`/resumes/${resumeId}`, {
+                        title: resumeData.title || 'Untitled Resume',
+                        content: JSON.stringify(resumeData),
+                        isComplete: false,
+                        currentStep: currentStep
+                    })
+                } catch (err) {
+                    setError('Autosave failed — check your connection')
+                }
+            } else if (resumeData.title.trim()) {
+                // New resume with at least a title — create it in backend
+                try {
+                    const response = await api.post('/resumes', {
+                        title: resumeData.title || 'Untitled Resume',
+                        content: JSON.stringify(resumeData),
+                        userId: userId,
+                        isComplete: false,
+                        currentStep: currentStep
+                    })
+                    const newId = response.data.id
+                    setResumeId(newId)
+                    localStorage.removeItem(localKey)
+                    window.history.replaceState(null, '', `/resume/${newId}`)
+                } catch (err) {
+                    // Fall back to localStorage if backend fails
+                    localStorage.setItem(localKey, JSON.stringify({
+                        resumeData,
+                        currentStep,
+                        visitedSteps: [...visitedSteps]
+                    }))
+                }
+            } else {
+                // No title yet — just save to localStorage
+                localStorage.setItem(localKey, JSON.stringify({
+                    resumeData,
+                    currentStep,
+                    visitedSteps: [...visitedSteps]
+                }))
+            }
+        }, 3000)
         return () => clearTimeout(saveTimeout.current)
     }, [resumeData, currentStep])
 
@@ -160,30 +192,16 @@ const ResumeFormPage = () => {
         try {
             const response = await api.get(`/resumes/${id}`)
             const parsed = JSON.parse(response.data.content)
-            const draft = localStorage.getItem(`resume_draft_${id}`)
-            if (draft) {
-                try {
-                    const localDraft = JSON.parse(draft)
-                    setResumeData(localDraft.resumeData || parsed)
-                    setCurrentStep(localDraft.currentStep || response.data.currentStep || 1)
-                    setVisitedSteps(new Set(localDraft.visitedSteps || [1, 2, 3, 4, 5, 6, 7]))
-                } catch (e) {
-                    setResumeData(parsed)
-                    setCurrentStep(response.data.currentStep || 1)
-                    setVisitedSteps(new Set([1, 2, 3, 4, 5, 6, 7]))
-                }
-            } else {
-                setResumeData(parsed)
-                setCurrentStep(response.data.currentStep || 1)
-                setVisitedSteps(new Set([1, 2, 3, 4, 5, 6, 7]))
-            }
+            setResumeData(parsed)
+            setCurrentStep(response.data.currentStep || 1)
+            setVisitedSteps(new Set([1, 2, 3, 4, 5, 6, 7]))
+            localStorage.removeItem(`resume_draft_${id}`)
         } catch (err) {
             setError('Failed to load resume')
         } finally {
             setLoading(false)
         }
     }
-
     const saveCheckpoint = async (nextStep, isComplete = false) => {
         setSaving(true)
         try {
@@ -234,7 +252,6 @@ const ResumeFormPage = () => {
     const isStepClickable = (stepId) => {
         if (stepId === currentStep) return true
         if (visitedSteps.has(stepId)) return true
-        if (stepId === currentStep + 1) return true
         return false
     }
 

@@ -45,6 +45,9 @@ const Navbar = () => {
                             background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
                             color: '#f0f0ff',
                         }}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                     >
                         New Resume
                     </button>
