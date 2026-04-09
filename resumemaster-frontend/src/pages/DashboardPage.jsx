@@ -38,6 +38,16 @@ const DashboardPage = () => {
         }
     }
 
+    const formatDate = (dateStr) => {
+        if (!dateStr) return 'N/A'
+        const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z')
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+    }
+
     if (loading) return (
         <div className="flex items-center justify-center"
              style={{ minHeight: 'calc(100vh - 64px)', backgroundColor: '#0d0d14' }}>
@@ -128,8 +138,8 @@ const DashboardPage = () => {
                                             letterSpacing: '0.05em',
                                             textTransform: 'uppercase'
                                         }}>
-                    Incomplete
-                </span>
+                                            Incomplete
+                                        </span>
                                     )}
                                 </div>
 
@@ -141,10 +151,10 @@ const DashboardPage = () => {
 
                                 {/* Dates */}
                                 <p className="text-xs mb-1" style={{ color: '#8b8ba7' }}>
-                                    Created {new Date(resume.createdAt).toLocaleDateString()}
+                                    Created {formatDate(resume.createdAt)}
                                 </p>
                                 <p className="text-xs mb-6" style={{ color: '#8b8ba7' }}>
-                                    Modified {new Date(resume.lastModified).toLocaleDateString()}
+                                    Modified {formatDate(resume.lastModified)}
                                 </p>
 
                                 {/* Actions */}
