@@ -1,0 +1,23 @@
+{
+  "name": "resumemaster",
+  "version": "1.0.0",
+  "description": "An AI-powered resume builder that helps job seekers create, optimize, and tailor their resumes with real-time AI feedback.",
+  "main": "generate-pdf.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luis-Nery/ResumeMaster.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Luis-Nery/ResumeMaster/issues"
+  },
+  "homepage": "https://github.com/Luis-Nery/ResumeMaster#readme",
+  "dependencies": {
+    "puppeteer": "^24.40.0"
+  }
+}
