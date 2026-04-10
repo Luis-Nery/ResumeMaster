@@ -291,6 +291,7 @@ const ResumeFormPage = () => {
 <style>
   * { box-sizing: border-box; word-break: break-word; overflow-wrap: break-word; }
   body { margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  span { font-size: inherit; line-height: inherit; }
 </style>
 </head>
 <body>${clone.outerHTML}</body>
@@ -315,7 +316,6 @@ const ResumeFormPage = () => {
             setDownloading(false)
         }
     }
-
     const focusInput = (e) => e.target.style.borderColor = '#7c3aed'
     const blurInput = (e) => e.target.style.borderColor = '#2a2a3a'
 
