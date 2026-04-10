@@ -183,6 +183,9 @@ const MinimalTemplate = ({
             color: '#1a1a1a',
             fontSize: fs.base,
             boxSizing: 'border-box',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
+            overflow: 'hidden',
         }}>
 
             {/* Header */}

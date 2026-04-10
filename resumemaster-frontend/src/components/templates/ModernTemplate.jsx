@@ -121,6 +121,7 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
             fontSize: fs.base,
             wordBreak: 'break-word',
             overflowWrap: 'break-word',
+            overflow: 'hidden',
         }}>
             {/* LEFT SIDEBAR */}
             <div style={{width: '35%', padding: '40px 24px', color: 'white', flexShrink: 0}}>

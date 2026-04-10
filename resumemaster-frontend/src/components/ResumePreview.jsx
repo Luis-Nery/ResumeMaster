@@ -48,7 +48,7 @@ const ResumePreview = ({ resumeData }) => {
     }
 
     return (
-        <div id="resume-preview">
+        <div id="resume-preview" style={{ wordBreak: 'break-word', overflowWrap: 'break-word', overflow: 'hidden' }}>
             {renderTemplate()}
         </div>
     )
