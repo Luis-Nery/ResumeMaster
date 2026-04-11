@@ -1,6 +1,18 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { setLogoutHandler } from '../services/api';
 
 const AuthContext = createContext(null);
+
+// Decodes the JWT payload and returns true if the token's exp has passed.
+// Returns true (treat as expired) if the token is malformed.
+const isTokenExpired = (token) => {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+    } catch {
+        return true;
+    }
+};
 
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
@@ -26,6 +38,19 @@ export const AuthProvider = ({ children }) => {
         setEmail(null);
         setUser(null);
     };
+
+    // On mount: clear any expired token so ProtectedRoute redirects immediately.
+    useEffect(() => {
+        if (token && isTokenExpired(token)) {
+            logout();
+        }
+    }, []);
+
+    // Register logout with the axios interceptor so 401 responses trigger a full
+    // auth reset rather than only removing the token from localStorage.
+    useEffect(() => {
+        setLogoutHandler(logout);
+    }, []);
 
     const isAuthenticated = () => {
         return token !== null;
