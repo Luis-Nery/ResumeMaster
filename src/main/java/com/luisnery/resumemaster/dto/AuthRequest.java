@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request body for the {@code POST /api/auth/login} endpoint.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

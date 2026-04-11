@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Request body for the {@code PUT /api/users/{id}} endpoint.
+ * All fields are optional; only non-blank provided values are applied to the user.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

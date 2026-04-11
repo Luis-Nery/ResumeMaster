@@ -14,6 +14,11 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service for AI-powered resume features.
+ * Makes HTTP calls to the Anthropic Claude API ({@code claude-haiku-4-5}) and parses the JSON responses.
+ * The API key is injected from the {@code anthropic.api.key} property.
+ */
 @Service
 public class AiService {
 
@@ -30,6 +35,13 @@ public class AiService {
 
     // ─── Feature 1: Full resume analysis ────────────────────────────────────
 
+    /**
+     * Sends the full resume JSON to Claude for scoring and per-section feedback.
+     *
+     * @param request the resume content and an optional target job title
+     * @return a map with {@code overallScore}, section scores/feedback, and an overall assessment string
+     * @throws Exception if the HTTP call fails or the response cannot be parsed as JSON
+     */
     public Map<String, Object> analyzeResume(AiAnalyzeRequest request) throws Exception {
         String jobContext = (request.getJobTitle() != null && !request.getJobTitle().isBlank())
                 ? "The candidate is targeting the role: " + request.getJobTitle() + ".\n"
@@ -69,6 +81,13 @@ public class AiService {
 
     // ─── Feature 2: Rewrite a bullet point ──────────────────────────────────
 
+    /**
+     * Asks Claude to produce three improved rewrites of a single resume bullet point.
+     *
+     * @param request the original bullet text and an optional target job title
+     * @return a map containing a {@code rewrites} list; each entry has {@code text} and {@code improvement}
+     * @throws Exception if the HTTP call fails or the response cannot be parsed as JSON
+     */
     public Map<String, Object> rewriteBullet(AiRewriteRequest request) throws Exception {
         String jobContext = (request.getJobTitle() != null && !request.getJobTitle().isBlank())
                 ? " The target role is: " + request.getJobTitle() + "."
@@ -96,6 +115,13 @@ public class AiService {
 
     // ─── Feature 3: Job description ATS match ───────────────────────────────
 
+    /**
+     * Compares the resume against a job description and returns an ATS match score with keyword analysis.
+     *
+     * @param request the resume content and the job description text
+     * @return a map with {@code score}, {@code matchedKeywords}, {@code missingKeywords}, feedback, and suggestions
+     * @throws Exception if the HTTP call fails or the response cannot be parsed as JSON
+     */
     public Map<String, Object> matchJobDescription(AiMatchRequest request) throws Exception {
         String prompt = """
                 You are an ATS (Applicant Tracking System) expert.
@@ -122,6 +148,14 @@ public class AiService {
 
     // ─── Shared HTTP call to Anthropic API ──────────────────────────────────
 
+    /**
+     * Sends a user prompt to the Anthropic Messages API and parses the text block in the response.
+     * Any surrounding Markdown code fences (e.g. {@code ```json}) are stripped before JSON parsing.
+     *
+     * @param userPrompt the full prompt string to send as the user message
+     * @return the parsed JSON response as a {@code Map<String, Object>}
+     * @throws Exception if the API returns a non-200 status or the response is not valid JSON
+     */
     private Map<String, Object> callAnthropicApi(String userPrompt) throws Exception {
         Map<String, Object> requestBody = Map.of(
                 "model", "claude-haiku-4-5-20251001",

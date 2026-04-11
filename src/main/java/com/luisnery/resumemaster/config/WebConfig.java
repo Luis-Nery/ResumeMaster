@@ -8,9 +8,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Web MVC configuration for the application.
+ * Currently configures CORS to allow requests from the frontend development
+ * server and the production domains.
+ */
 @Configuration
 public class WebConfig {
 
+    /**
+     * Configures CORS for all {@code /api/**} routes.
+     * Allows requests from {@code localhost:3000}, {@code localhost:5173}, and the production domains.
+     *
+     * @return the configured {@link CorsConfigurationSource}
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

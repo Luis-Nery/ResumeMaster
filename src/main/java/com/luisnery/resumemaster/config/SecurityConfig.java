@@ -18,6 +18,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+/**
+ * Spring Security configuration for the application.
+ * Sets up stateless JWT-based authentication, CORS, and the public/protected route split.
+ * Public routes: {@code /api/auth/**} and Swagger UI paths.
+ * All other routes require a valid Bearer token.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
