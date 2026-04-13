@@ -33,6 +33,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for {@link ResumeController} using {@link WebMvcTest}.
+ * The production JWT security filter chain is replaced with the permissive
+ * {@link TestSecurityConfig} so that tests can focus on controller logic
+ * rather than authentication.  All service dependencies are mocked via
+ * {@code @MockitoBean}.
+ */
 @WebMvcTest(ResumeController.class)
 @Import(TestSecurityConfig.class)
 public class ResumeControllerTest {
@@ -73,6 +80,10 @@ public class ResumeControllerTest {
                 , LocalDateTime.now(), LocalDateTime.now(), fakeUserResponse,false,1);
     }
 
+    /**
+     * Given the service returns a non-empty list of resumes for a user ID,
+     * verifies the endpoint responds with 200 OK and a JSON array.
+     */
     @Test
     void getAllResumesByUserId_returnsListOfResumeResponses() throws Exception {
         //Arrange
@@ -82,6 +93,10 @@ public class ResumeControllerTest {
                 andExpect(jsonPath("$").isArray());
     }
 
+    /**
+     * Given the service returns an empty list for a user ID, verifies the
+     * endpoint responds with 200 OK and an empty JSON array.
+     */
     @Test
     void getAllResumesByUserId_returnsEmptyList() throws Exception {
         //Arrange
@@ -91,6 +106,10 @@ public class ResumeControllerTest {
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    /**
+     * Given the service returns a resume for the requested ID, verifies the
+     * endpoint responds with 200 OK and the correct title and content fields.
+     */
     @Test
     void getResumeById_returnsResumeResponse() throws Exception {
         //Arrange
@@ -101,6 +120,10 @@ public class ResumeControllerTest {
                 .andExpect(jsonPath("$.content").value("Mocked Content"));
     }
 
+    /**
+     * Given the service throws {@link ResumeNotFoundException} for an unknown ID,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void getResumeById_resumeNotFound_throwsException() throws Exception {
         //Arrange
@@ -109,6 +132,10 @@ public class ResumeControllerTest {
         mockMvc.perform(get("/api/resumes/1")).andExpect(status().isNotFound());
     }
 
+    /**
+     * Given a valid create request and the service persists the resume, verifies
+     * the endpoint responds with 201 Created and the correct title in the response body.
+     */
     @Test
     void createResume_success() throws Exception {
         //Arrange
@@ -122,6 +149,10 @@ public class ResumeControllerTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.title").value("Mocked Resume"));
     }
 
+    /**
+     * Given a create request with a blank title, which fails {@code @NotBlank} validation,
+     * verifies the endpoint responds with 400 Bad Request.
+     */
     @Test
     void createResume_invalidData_returnsBadRequest() throws Exception {
         //Arrange
@@ -134,6 +165,10 @@ public class ResumeControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Given a valid update request and the service returns the updated resume,
+     * verifies the endpoint responds with 200 OK.
+     */
     @Test
     void updateResume_success() throws Exception {
         //Arrange
@@ -144,6 +179,10 @@ public class ResumeControllerTest {
                 .content(objectMapper.writeValueAsString(resumeRequest))).andExpect(status().isOk());
     }
 
+    /**
+     * Given the service throws {@link ResumeNotFoundException} during an update,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void updateResume_resumeNotFound_throwsException() throws Exception {
         //Arrange
@@ -155,6 +194,10 @@ public class ResumeControllerTest {
                 .content(objectMapper.writeValueAsString(resumeRequest))).andExpect(status().isNotFound());
     }
 
+    /**
+     * Given the service deletes the resume without error, verifies the endpoint
+     * responds with 204 No Content.
+     */
     @Test
     void deleteResume_success() throws Exception {
         //Arrange
@@ -163,6 +206,10 @@ public class ResumeControllerTest {
         mockMvc.perform(delete("/api/resumes/1")).andExpect(status().isNoContent());
     }
 
+    /**
+     * Given the service throws {@link ResumeNotFoundException} during deletion,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void deleteResume_resumeNotFound_throwsException() throws Exception {
         //Arrange

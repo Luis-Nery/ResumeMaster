@@ -30,6 +30,13 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration tests for {@link UserController} using {@link WebMvcTest}.
+ * The production JWT security filter chain is replaced with the permissive
+ * {@link TestSecurityConfig} so that tests can focus on controller logic
+ * rather than authentication.  All service dependencies are mocked via
+ * {@code @MockitoBean}.
+ */
 @WebMvcTest(UserController.class)
 @Import(TestSecurityConfig.class)
 class UserControllerTest {
@@ -64,6 +71,10 @@ class UserControllerTest {
         fakeUserResponse = new UserResponse(1L, "Luis", "Nery", "luis@test.com", LocalDateTime.now());
     }
 
+    /**
+     * Given the service returns a non-empty list, verifies the endpoint responds
+     * with 200 OK, a JSON array, and the correct email in the first element.
+     */
     @Test
     void getAllUsers_returnsListOfUsers() throws Exception {
         //Arrange
@@ -73,6 +84,10 @@ class UserControllerTest {
                 .isArray()).andExpect(jsonPath("$[0].email").value("luis@test.com"));
     }
 
+    /**
+     * Given the service returns an empty list, verifies the endpoint responds
+     * with 200 OK and an empty JSON array.
+     */
     @Test
     void getAllUsers_returnsEmptyList() throws Exception {
         //Arrange
@@ -83,6 +98,10 @@ class UserControllerTest {
                 andExpect(jsonPath("$").isEmpty());
     }
 
+    /**
+     * Given the service returns a user for the requested ID, verifies the endpoint
+     * responds with 200 OK and the correct email and firstName fields.
+     */
     @Test
     void getUserById_userExists_returnsUser() throws Exception {
         //Arrange
@@ -93,6 +112,10 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Luis"));
     }
 
+    /**
+     * Given the service throws {@link UserNotFoundException} for an unknown ID,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void getUserById_userNotFound_throwsException() throws Exception {
         //Arrange
@@ -101,6 +124,10 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users/99")).andExpect(status().isNotFound());
     }
 
+    /**
+     * Given a valid update request and the service returns the updated user,
+     * verifies the endpoint responds with 200 OK.
+     */
     @Test
     void updateUser_success_returnsUpdatedUser() throws Exception {
         //Arrange
@@ -113,6 +140,10 @@ class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Given the service throws {@link UserNotFoundException} during an update,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void updateUser_userNotFound_throwsException() throws Exception {
         //Arrange
@@ -125,6 +156,10 @@ class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Given the service deletes the user without error, verifies the endpoint
+     * responds with 204 No Content.
+     */
     @Test
     void deleteUserById_success() throws Exception {
         //Arrange
@@ -133,6 +168,10 @@ class UserControllerTest {
         mockMvc.perform(delete("/api/users/1")).andExpect(status().isNoContent());
     }
 
+    /**
+     * Given the service throws {@link UserNotFoundException} during deletion,
+     * verifies the endpoint responds with 404 Not Found.
+     */
     @Test
     void deleteUserById_userNotFound_throwsException() throws Exception {
         //Arrange

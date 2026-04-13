@@ -22,6 +22,12 @@ import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Unit tests for {@link ResumeService}.
+ * Uses Mockito to isolate the service from both {@link ResumeRepository} and
+ * {@link UserRepository} so that each test verifies a single piece of business
+ * logic without touching the database.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ResumeServiceTest {
     @Mock
@@ -50,6 +56,10 @@ public class ResumeServiceTest {
         fakeResume.setUser(fakeUser);
     }
 
+    /**
+     * Given the repository returns a non-empty list for a user ID, verifies the
+     * service propagates the list unchanged.
+     */
     @Test
     void getAllResumesByUserId_returnsListOfResumesByUserId() {
         //Arrange
@@ -60,6 +70,10 @@ public class ResumeServiceTest {
         assertThat(resumes).hasSize(1);
     }
 
+    /**
+     * Given the repository returns an empty list for a user ID, verifies the
+     * service propagates the empty result without throwing.
+     */
     @Test
     void getAllResumesByUserId_returnsEmptyList() {
         //Arrange
@@ -70,6 +84,10 @@ public class ResumeServiceTest {
         assertThat(resumes).isEmpty();
     }
 
+    /**
+     * Given a resume exists for the requested ID, verifies the service returns
+     * the correct resume entity.
+     */
     @Test
     void getResumeById_resumeExists_returnsResume() {
         //Arrange
@@ -80,6 +98,10 @@ public class ResumeServiceTest {
         assertThat(resume.getId()).isEqualTo(fakeResume.getId());
     }
 
+    /**
+     * Given no resume exists for the requested ID, verifies the service throws
+     * {@link ResumeNotFoundException} rather than returning null.
+     */
     @Test
     void getResumeById_resumeNotFound_throwsException() {
         //Act
@@ -89,6 +111,10 @@ public class ResumeServiceTest {
                 .isInstanceOf(ResumeNotFoundException.class);
     }
 
+    /**
+     * Given the owning user exists, verifies the service persists the resume
+     * and returns the saved entity.
+     */
     @Test
     void createResume_success_returnsSavedResume() {
         //Arrange
@@ -100,6 +126,10 @@ public class ResumeServiceTest {
         assertThat(resume).isEqualTo(fakeResume);
     }
 
+    /**
+     * Given the owning user does not exist, verifies the service throws
+     * {@link UserNotFoundException} and does not persist the resume.
+     */
     @Test
     void createResume_userDoesNotExist_throwsException() {
         //Act
@@ -109,6 +139,10 @@ public class ResumeServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
     }
 
+    /**
+     * Given a valid update request and an existing resume, verifies the service
+     * applies the change and returns the updated resume.
+     */
     @Test
     void updateResume_success_returnsSavedResume() {
         //Arrange
@@ -122,6 +156,10 @@ public class ResumeServiceTest {
         assertThat(tempResume.getTitle()).isEqualTo("Updated");
     }
 
+    /**
+     * Given no resume exists for the requested ID, verifies the service throws
+     * {@link ResumeNotFoundException} before attempting to save.
+     */
     @Test
     void updateResume_userDoesNotExist_throwsException() {
         //Arrange
@@ -133,6 +171,10 @@ public class ResumeServiceTest {
                 .isInstanceOf(ResumeNotFoundException.class);
     }
 
+    /**
+     * Given an existing resume, verifies the service delegates the deletion to
+     * the repository's {@code deleteById} method.
+     */
     @Test
     void deleteResume_success() {
         //Arrange
@@ -143,6 +185,10 @@ public class ResumeServiceTest {
         verify(resumeRepository).deleteById(1L);
     }
 
+    /**
+     * Given no resume exists for the requested ID, verifies the service throws
+     * {@link ResumeNotFoundException} without calling {@code deleteById}.
+     */
     @Test
     void deleteResume_resumeDoesNotExist_throwsException() {
         //Act
