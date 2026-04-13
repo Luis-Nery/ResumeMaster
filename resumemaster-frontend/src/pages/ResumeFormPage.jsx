@@ -6,6 +6,7 @@ import ResumePreview from '../components/ResumePreview'
 import DesignPanel from '../components/DesignPanel'
 import AiPanel from '../components/AiPanel'
 
+/** Shared inline style object applied to every `<input>` and `<textarea>` in the form. */
 const inputStyle = {
     backgroundColor: '#0d0d14',
     border: '1px solid #2a2a3a',
@@ -22,6 +23,7 @@ const inputStyle = {
     boxSizing: 'border-box',
 }
 
+/** Shared inline style for form field `<label>` elements. */
 const labelStyle = {
     display: 'block',
     fontSize: '13px',
@@ -30,6 +32,7 @@ const labelStyle = {
     marginBottom: '6px',
 }
 
+/** Shared inline style for "add" action buttons (e.g. Add Bullet, Add Entry). */
 const addButtonStyle = {
     backgroundColor: '#7c3aed22',
     border: '1px solid #7c3aed44',
@@ -41,6 +44,7 @@ const addButtonStyle = {
     marginTop: '12px',
 }
 
+/** Shared inline style for "remove" action buttons (e.g. Remove Entry). */
 const removeButtonStyle = {
     backgroundColor: '#ef444411',
     border: '1px solid #ef444433',
@@ -52,6 +56,7 @@ const removeButtonStyle = {
     marginTop: '8px',
 }
 
+/** Shared inline style for entry cards (experience, education entries). */
 const cardStyle = {
     padding: '20px',
     borderRadius: '12px',
@@ -62,6 +67,11 @@ const cardStyle = {
     boxSizing: 'border-box',
 }
 
+/**
+ * Ordered list of wizard steps displayed in the progress indicator.
+ * Each step has a numeric `id` (used as the `currentStep` value) and a
+ * human-readable `title` shown in the step indicator tooltip and label.
+ */
 const steps = [
     {id: 1, title: 'Title'},
     {id: 2, title: 'Personal'},
@@ -72,6 +82,11 @@ const steps = [
     {id: 7, title: 'Review'},
 ]
 
+/**
+ * Default resume data used when creating a brand-new resume. All string
+ * fields are empty, arrays contain a single blank entry, and design
+ * settings are initialised to sensible defaults.
+ */
 const emptyResumeData = {
     template: 'classic',
     accentColor: '#1a1a1a',
@@ -125,6 +140,28 @@ const emptyResumeData = {
     }
 }
 
+/**
+ * Multi-step resume editor page used for both creating (`/resume/new`) and
+ * editing (`/resume/:id`) resumes.
+ *
+ * The left panel hosts three modes toggled by a tab bar:
+ * - **Write** — a 7-step wizard (Title → Personal → Summary → Experience →
+ *   Education → Skills → Review) with back/next navigation and a step
+ *   progress indicator.
+ * - **Design** — the {@link DesignPanel} for template, font, colour, and
+ *   spacing settings.
+ * - **AI** — the {@link AiPanel} for analysis, bullet rewrites, and ATS matching.
+ *
+ * The right panel always shows a live {@link ResumePreview}.
+ *
+ * **Autosave**: A 3-second debounced effect fires whenever `resumeData` or
+ * `currentStep` changes. If a resume record exists it is updated via
+ * `PUT /api/resumes/:id`; if the title is non-empty a new record is created
+ * via `POST /api/resumes` and the URL is updated to the new id. While offline
+ * or before first save the draft is kept in `localStorage`.
+ *
+ * @returns {JSX.Element} The split-panel resume editor or a loading spinner.
+ */
 const ResumeFormPage = () => {
     const {id} = useParams()
     const {userId} = useAuth()
@@ -198,6 +235,14 @@ const ResumeFormPage = () => {
         return () => clearTimeout(saveTimeout.current)
     }, [resumeData, currentStep])
 
+    /**
+     * Fetches an existing resume by id from `GET /api/resumes/:id`, parses
+     * the JSON content field, restores the current step, and marks all steps
+     * as visited so the user can jump between them freely.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const fetchResume = async () => {
         try {
             const response = await api.get(`/resumes/${id}`)
@@ -213,6 +258,16 @@ const ResumeFormPage = () => {
         }
     }
 
+    /**
+     * Persists the current resume data as a checkpoint. Creates a new resume
+     * record if none exists yet, otherwise updates the existing one. Updates
+     * the URL to the new resume id and clears the local draft on first save.
+     *
+     * @async
+     * @param {number}  nextStep              - The step number to record as the resume's progress.
+     * @param {boolean} [isComplete=false]    - Whether to mark the resume as fully complete.
+     * @returns {Promise<void>}
+     */
     const saveCheckpoint = async (nextStep, isComplete = false) => {
         setSaving(true)
         try {
@@ -243,6 +298,13 @@ const ResumeFormPage = () => {
         }
     }
 
+    /**
+     * Saves a checkpoint for the current step and advances to the next step.
+     * Adds the next step to the set of visited steps so it becomes clickable.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleNext = async () => {
         await saveCheckpoint(currentStep + 1)
         const next = currentStep + 1
@@ -250,17 +312,38 @@ const ResumeFormPage = () => {
         setCurrentStep(next)
     }
 
+    /**
+     * Navigates directly to a step when the user clicks the step indicator.
+     * Does nothing if the step is not yet clickable (not visited and not current).
+     *
+     * @param {number} stepId - The id of the step to navigate to.
+     */
     const handleStepClick = (stepId) => {
         if (!isStepClickable(stepId)) return
         setCurrentStep(stepId)
     }
 
+    /**
+     * Returns whether the step indicator circle for `stepId` should respond
+     * to clicks. A step is clickable if it is the current step or has been
+     * previously visited.
+     *
+     * @param {number} stepId - The id of the step to check.
+     * @returns {boolean} `true` if the step is reachable.
+     */
     const isStepClickable = (stepId) => {
         if (stepId === currentStep) return true
         if (visitedSteps.has(stepId)) return true
         return false
     }
 
+    /**
+     * Saves the resume as complete (step 7, `isComplete: true`), clears any
+     * local drafts, and navigates back to the dashboard.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleSave = async () => {
         await saveCheckpoint(7, true)
         localStorage.removeItem(localKey)
@@ -268,6 +351,17 @@ const ResumeFormPage = () => {
         navigate('/dashboard')
     }
 
+    /**
+     * Generates and downloads a PDF of the current resume.
+     *
+     * Clones the rendered template DOM node from `#resume-preview`, forces
+     * it to a fixed 794 px width (A4), serialises it to an HTML string, and
+     * sends it to `POST /api/pdf/generate`. The backend uses Puppeteer to
+     * render and return the PDF bytes, which are then downloaded as a file.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleDownload = async () => {
         const element = document.getElementById('resume-preview').firstElementChild
         if (!element) return
@@ -316,13 +410,28 @@ const ResumeFormPage = () => {
             setDownloading(false)
         }
     }
+    /** Highlights an input border in accent purple when it gains focus. */
     const focusInput = (e) => e.target.style.borderColor = '#7c3aed'
+    /** Resets an input border to the default dark colour when it loses focus. */
     const blurInput = (e) => e.target.style.borderColor = '#2a2a3a'
 
+    /**
+     * Updates a single field in `resumeData.personalInfo`.
+     *
+     * @param {string} field - The personalInfo key to update (e.g. `'email'`).
+     * @param {string} value - The new value for that field.
+     */
     const updatePersonalInfo = (field, value) => {
         setResumeData(prev => ({...prev, personalInfo: {...prev.personalInfo, [field]: value}}))
     }
 
+    /**
+     * Updates a single field on an experience entry identified by `expId`.
+     *
+     * @param {number} expId  - The `id` of the experience entry to update.
+     * @param {string} field  - The field name to change.
+     * @param {*}      value  - The new field value.
+     */
     const updateExperience = (expId, field, value) => {
         setResumeData(prev => ({
             ...prev,
@@ -330,6 +439,10 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Appends a new blank work experience entry to `resumeData.experience`.
+     * The new entry uses `Date.now()` as a unique id.
+     */
     const addExperience = () => {
         setResumeData(prev => ({
             ...prev,
@@ -341,10 +454,21 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the experience entry with the given id from `resumeData.experience`.
+     *
+     * @param {number} expId - The `id` of the experience entry to remove.
+     */
     const removeExperience = (expId) => {
         setResumeData(prev => ({...prev, experience: prev.experience.filter(exp => exp.id !== expId)}))
     }
 
+    /**
+     * Appends an empty bullet string to the `bullets` array of the experience
+     * entry identified by `expId`.
+     *
+     * @param {number} expId - The `id` of the target experience entry.
+     */
     const addBullet = (expId) => {
         setResumeData(prev => ({
             ...prev,
@@ -354,6 +478,13 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the bullet at position `index` from the `bullets` array of the
+     * experience entry identified by `expId`.
+     *
+     * @param {number} expId  - The `id` of the target experience entry.
+     * @param {number} index  - Zero-based index of the bullet to remove.
+     */
     const removeBullet = (expId, index) => {
         setResumeData(prev => ({
             ...prev,
@@ -363,6 +494,14 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Updates the bullet text at position `index` in the `bullets` array of
+     * the experience entry identified by `expId`.
+     *
+     * @param {number} expId  - The `id` of the target experience entry.
+     * @param {number} index  - Zero-based index of the bullet to update.
+     * @param {string} value  - The new bullet text.
+     */
     const updateBullet = (expId, index, value) => {
         setResumeData(prev => ({
             ...prev,
@@ -372,6 +511,13 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Updates a single field on an education entry identified by `eduId`.
+     *
+     * @param {number} eduId  - The `id` of the education entry to update.
+     * @param {string} field  - The field name to change.
+     * @param {*}      value  - The new field value.
+     */
     const updateEducation = (eduId, field, value) => {
         setResumeData(prev => ({
             ...prev,
@@ -379,6 +525,9 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Appends a new blank education entry to `resumeData.education`.
+     */
     const addEducation = () => {
         setResumeData(prev => ({
             ...prev,
@@ -390,10 +539,21 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the education entry with the given id from `resumeData.education`.
+     *
+     * @param {number} eduId - The `id` of the education entry to remove.
+     */
     const removeEducation = (eduId) => {
         setResumeData(prev => ({...prev, education: prev.education.filter(edu => edu.id !== eduId)}))
     }
 
+    /**
+     * Appends an empty accomplishment bullet to the `accomplishmentBullets`
+     * array of the education entry identified by `eduId`.
+     *
+     * @param {number} eduId - The `id` of the target education entry.
+     */
     const addAccomplishment = (eduId) => {
         setResumeData(prev => ({
             ...prev,
@@ -403,6 +563,13 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the accomplishment bullet at position `index` from the
+     * education entry identified by `eduId`.
+     *
+     * @param {number} eduId  - The `id` of the target education entry.
+     * @param {number} index  - Zero-based index of the bullet to remove.
+     */
     const removeAccomplishment = (eduId, index) => {
         setResumeData(prev => ({
             ...prev,
@@ -415,6 +582,14 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Updates the text of an accomplishment bullet at position `index` in the
+     * education entry identified by `eduId`.
+     *
+     * @param {number} eduId  - The `id` of the target education entry.
+     * @param {number} index  - Zero-based index of the bullet to update.
+     * @param {string} value  - The new bullet text.
+     */
     const updateAccomplishment = (eduId, index, value) => {
         setResumeData(prev => ({
             ...prev,
@@ -427,6 +602,13 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Returns the skills data in the current structured format. Migrates
+     * legacy resumes that stored skills as a flat string array by wrapping
+     * them in the new categories object shape.
+     *
+     * @returns {{ displayMode: string, bulletStyle: string, separator: string, columns: number, categories: Array }} Normalised skills object.
+     */
     const getSkills = () => {
         if (Array.isArray(resumeData.skills)) {
             return {
@@ -440,10 +622,20 @@ const ResumeFormPage = () => {
         return resumeData.skills
     }
 
+    /**
+     * Updates a top-level metadata field on the skills object
+     * (e.g. `displayMode`, `bulletStyle`, `separator`, `columns`).
+     *
+     * @param {string} field - The skills metadata key to update.
+     * @param {*}      value - The new value.
+     */
     const updateSkillsMeta = (field, value) => {
         setResumeData(prev => ({...prev, skills: {...getSkills(), [field]: value}}))
     }
 
+    /**
+     * Appends a new blank skill category to the skills categories array.
+     */
     const addCategory = () => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -452,6 +644,11 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the skill category with the given id.
+     *
+     * @param {number} catId - The `id` of the category to remove.
+     */
     const removeCategory = (catId) => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -460,6 +657,12 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Updates the name of a skill category.
+     *
+     * @param {number} catId  - The `id` of the category to rename.
+     * @param {string} value  - The new category name.
+     */
     const updateCategoryName = (catId, value) => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -468,6 +671,12 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Appends an empty skill string to the items array of the category
+     * identified by `catId`.
+     *
+     * @param {number} catId - The `id` of the target category.
+     */
     const addCategoryItem = (catId) => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -479,6 +688,13 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Removes the skill item at position `index` from the category
+     * identified by `catId`.
+     *
+     * @param {number} catId  - The `id` of the target category.
+     * @param {number} index  - Zero-based index of the item to remove.
+     */
     const removeCategoryItem = (catId, index) => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -492,6 +708,14 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Updates the skill text at position `index` in the category identified
+     * by `catId`.
+     *
+     * @param {number} catId  - The `id` of the target category.
+     * @param {number} index  - Zero-based index of the item to update.
+     * @param {string} value  - The new skill text.
+     */
     const updateCategoryItem = (catId, index, value) => {
         const s = getSkills()
         setResumeData(prev => ({
@@ -505,6 +729,21 @@ const ResumeFormPage = () => {
         }))
     }
 
+    /**
+     * Returns the JSX for the currently active wizard step. Each case
+     * renders the appropriate form fields for that step's data slice.
+     *
+     * Step mapping:
+     * 1 — Resume title
+     * 2 — Personal information
+     * 3 — Professional summary
+     * 4 — Work experience & projects
+     * 5 — Education
+     * 6 — Skills (with display-mode controls)
+     * 7 — Review summary + save button
+     *
+     * @returns {JSX.Element|null} The form UI for the current step.
+     */
     const renderStep = () => {
         const skills = getSkills()
 

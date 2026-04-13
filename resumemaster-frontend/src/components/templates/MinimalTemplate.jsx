@@ -1,5 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 
+/**
+ * Minimal single-column resume template with extra whitespace and a thin
+ * gradient line beneath the name. Section labels are small-caps with wide
+ * letter-spacing. Entries are separated by a subtle `#f0f0f0` rule instead
+ * of heavy borders.
+ *
+ * The contact line is auto-shrunk when it overflows the available width, the
+ * same way as {@link ClassicTemplate}. Skills support `horizontal`, `vertical`,
+ * and `columns` display modes.
+ *
+ * @param {object}  props
+ * @param {object}  props.resumeData       - Full resume data object.
+ * @param {string}  [props.accentColor='#111111'] - CSS colour used for section
+ *                                           labels and the gradient line.
+ * @param {string}  [props.font='Arial, sans-serif'] - CSS font-family for the document.
+ * @param {object}  props.fontSizes         - Object with keys `base`, `title`, `name`,
+ *                                           `small`, `label` mapping to CSS sizes.
+ * @param {string}  props.padding           - CSS shorthand padding for the page.
+ * @param {string}  props.sectionSpacing    - CSS margin-bottom between resume sections.
+ * @returns {JSX.Element} A clean, minimal resume document.
+ */
 const MinimalTemplate = ({
                              resumeData,
                              accentColor = '#111111',
@@ -60,6 +81,14 @@ const MinimalTemplate = ({
         ? skills.some(Boolean)
         : skillsData.categories.some(c => c.items.some(Boolean))
 
+    /**
+     * Renders the skills section in the selected display mode.
+     * Supports `horizontal` (inline list), `vertical` (bulleted), and
+     * `columns` (CSS grid) layouts.
+     *
+     * @returns {JSX.Element|undefined} The rendered skills block, or `undefined`
+     *   if `displayMode` does not match any known value.
+     */
     const renderSkills = () => {
         const {displayMode, bulletStyle, separator, columns, categories} = skillsData
         const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '
@@ -123,7 +152,15 @@ const MinimalTemplate = ({
         }
     }
 
-    // ─── Shared entry renderer ────────────────────────────────────────────────
+    /**
+     * Renders a single work or project experience entry. Entries are divided
+     * by a thin rule; the last entry omits the bottom border and margin.
+     *
+     * @param {object} exp   - An experience object from `resumeData.experience`.
+     * @param {number} idx   - Index of this entry in its list.
+     * @param {Array}  arr   - The full list this entry belongs to.
+     * @returns {JSX.Element} A styled, minimally decorated entry block.
+     */
     const renderEntry = (exp, idx, arr) => {
         const isLast = idx === arr.length - 1
         return (
@@ -163,6 +200,12 @@ const MinimalTemplate = ({
         )
     }
 
+    /**
+     * Returns a small-caps, wide-tracked section label paragraph.
+     *
+     * @param {string} text - The label text.
+     * @returns {JSX.Element} A styled `<p>` used as a section heading.
+     */
     const sectionLabel = (text) => (
         <p style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.2em', color: accentColor, marginBottom: '12px'}}>
             {text}

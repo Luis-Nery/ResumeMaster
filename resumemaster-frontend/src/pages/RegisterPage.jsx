@@ -3,6 +3,15 @@ import {useNavigate, Link} from 'react-router-dom'
 import api from '../services/api'
 import LavaLamp from '../components/LavaLamp'
 
+/**
+ * Registration page with email and password fields. On successful account
+ * creation the user is redirected to `/login`. Validation error messages
+ * from the backend (field-level or message-level) are surfaced inline.
+ * Password must be at least 8 characters (enforced by both the `minLength`
+ * attribute and backend validation).
+ *
+ * @returns {JSX.Element} The full-page registration form with a LavaLamp background.
+ */
 const RegisterPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -11,6 +20,14 @@ const RegisterPage = () => {
 
     const navigate = useNavigate()
 
+    /**
+     * Handles form submission: calls `POST /api/auth/register` and redirects
+     * to `/login` on success. Extracts field-level or message-level error
+     * strings from the backend response on failure.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
+     * @returns {Promise<void>}
+     */
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)

@@ -8,11 +8,26 @@ import ResumeFormPage from './pages/ResumeFormPage'
 import LandingPage from './pages/LandingPage'
 import Navbar from './components/Navbar'
 
+/**
+ * Route guard that redirects unauthenticated users to `/login`.
+ * Wraps any page component that requires the user to be logged in.
+ *
+ * @param {{ children: React.ReactNode }} props
+ * @returns {JSX.Element} The protected children or a redirect to `/login`.
+ */
 const ProtectedRoute = ({children}) => {
     const {isAuthenticated} = useAuth()
     return isAuthenticated() ? children : <Navigate to="/login"/>
 }
 
+/**
+ * Root application component.
+ * Renders the persistent {@link Navbar} and declares all client-side
+ * routes. Protected routes are wrapped with {@link ProtectedRoute} so
+ * unauthenticated visitors are redirected to `/login`.
+ *
+ * @returns {JSX.Element} The full application shell with routing.
+ */
 const App = () => {
     return (
         <div>

@@ -4,6 +4,14 @@ import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import LavaLamp from '../components/LavaLamp'
 
+/**
+ * Login page with email/password form. On successful authentication the
+ * backend JWT, userId, and email are stored via `AuthContext.login` and the
+ * user is redirected to `/dashboard`. Displays a generic error message on
+ * any failed attempt to avoid leaking which field is wrong.
+ *
+ * @returns {JSX.Element} The full-page login form with a LavaLamp background.
+ */
 const LoginPage = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -13,6 +21,13 @@ const LoginPage = () => {
     const { login } = useAuth()
     const navigate = useNavigate()
 
+    /**
+     * Handles form submission: calls `POST /api/auth/login`, stores the
+     * returned credentials, and navigates to the dashboard on success.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
+     * @returns {Promise<void>}
+     */
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)

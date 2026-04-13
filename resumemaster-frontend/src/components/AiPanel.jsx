@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../services/api'
 
+/** Shared inline style applied to all text inputs and textareas inside AiPanel. */
 const inputStyle = {
     width: '100%',
     padding: '10px 14px',
@@ -14,6 +15,15 @@ const inputStyle = {
     boxSizing: 'border-box',
 }
 
+/**
+ * Circular score indicator that displays a numeric score (0–100) inside
+ * a coloured ring. The ring colour is green for scores ≥ 75, amber for
+ * scores ≥ 50, and red below 50.
+ *
+ * @param {object} props
+ * @param {number} props.score - Numeric score between 0 and 100.
+ * @returns {JSX.Element} A ring graphic with the score and a text label.
+ */
 const ScoreRing = ({ score }) => {
     const color = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
     return (
@@ -35,6 +45,19 @@ const ScoreRing = ({ score }) => {
     )
 }
 
+/**
+ * Card that summarises the AI analysis result for a single resume section.
+ * Displays the section name, a colour-coded score out of 100, feedback text,
+ * and one or more actionable suggestions.
+ *
+ * @param {object}   props
+ * @param {string}   props.title        - Section name shown in the card header (e.g. "Experience").
+ * @param {number}   props.score        - Section score 0–100; drives the colour of the score badge.
+ * @param {string}   props.feedback     - Narrative feedback sentence for the section.
+ * @param {string}   [props.suggestion] - A single improvement suggestion (shown as a tip line).
+ * @param {string[]} [props.suggestions] - Multiple improvement suggestions displayed as separate tip lines.
+ * @returns {JSX.Element} A styled card with score, feedback, and suggestion(s).
+ */
 const SectionCard = ({ title, score, feedback, suggestion, suggestions }) => {
     const color = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444'
     return (
@@ -61,6 +84,23 @@ const SectionCard = ({ title, score, feedback, suggestion, suggestions }) => {
     )
 }
 
+/**
+ * AI-powered side panel with three tabs: Analyze, Rewrite, and Match.
+ *
+ * - **Analyze** — sends the full resume JSON to `POST /api/ai/analyze` and
+ *   renders per-section scores and suggestions via {@link ScoreRing} and
+ *   {@link SectionCard}.
+ * - **Rewrite** — sends a single bullet point to `POST /api/ai/rewrite` and
+ *   returns three improved variants the user can copy to the clipboard.
+ * - **Match** — sends the resume and a pasted job description to
+ *   `POST /api/ai/match` and displays an ATS match score along with matched
+ *   and missing keywords.
+ *
+ * @param {object} props
+ * @param {object} props.resumeData - The current resume data object used as
+ *                                    input for AI analysis and matching.
+ * @returns {JSX.Element} The three-tab AI features panel.
+ */
 export default function AiPanel({ resumeData }) {
     const [activeTab, setActiveTab] = useState('analyze')
     const [loading, setLoading] = useState(false)
@@ -80,6 +120,13 @@ export default function AiPanel({ resumeData }) {
     const [jobDescription, setJobDescription] = useState('')
     const [matchResult, setMatchResult] = useState(null)
 
+    /**
+     * Sends the current resume to the AI analysis endpoint and stores the
+     * structured result (overall score + per-section scores and suggestions).
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleAnalyze = async () => {
         setLoading(true)
         setError(null)
@@ -97,6 +144,13 @@ export default function AiPanel({ resumeData }) {
         }
     }
 
+    /**
+     * Sends a single bullet-point text to the AI rewrite endpoint and stores
+     * an array of three improved variations. Does nothing if the input is empty.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleRewrite = async () => {
         if (!bulletText.trim()) return
         setLoading(true)
@@ -116,6 +170,14 @@ export default function AiPanel({ resumeData }) {
         }
     }
 
+    /**
+     * Sends the resume and the pasted job description to the ATS match
+     * endpoint and stores the score, matched keywords, missing keywords,
+     * and textual feedback. Does nothing if the job description is empty.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleMatch = async () => {
         if (!jobDescription.trim()) return
         setLoading(true)
@@ -134,6 +196,13 @@ export default function AiPanel({ resumeData }) {
         }
     }
 
+    /**
+     * Copies the given text to the system clipboard and temporarily marks
+     * the button at `index` as "Copied!" for 2 seconds.
+     *
+     * @param {string} text  - The text to copy to the clipboard.
+     * @param {number} index - Index of the rewrite result card being copied.
+     */
     const copyToClipboard = (text, index) => {
         navigator.clipboard.writeText(text)
         setCopiedIndex(index)

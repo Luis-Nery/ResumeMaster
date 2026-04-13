@@ -1,5 +1,16 @@
 import { useState } from 'react'
 
+/**
+ * Confirmation modal that prevents accidental resume deletion.
+ * The user must type the exact resume title before the Delete button
+ * becomes active. Renders as a fixed, full-screen overlay.
+ *
+ * @param {object}   props
+ * @param {string}   props.resumeTitle - The title the user must type to confirm deletion.
+ * @param {Function} props.onConfirm   - Called when the user confirms deletion.
+ * @param {Function} props.onCancel    - Called when the user cancels and closes the modal.
+ * @returns {JSX.Element} The delete-confirmation modal.
+ */
 const DeleteConfirmModal = ({ resumeTitle, onConfirm, onCancel }) => {
     const [input, setInput] = useState('')
 

@@ -1,5 +1,16 @@
 import { useEffect, useRef } from 'react'
 
+/**
+ * Animated canvas background that renders rising, wobbling blobs to
+ * create a lava-lamp ambience. The canvas is absolutely positioned and
+ * pointer-events are disabled so it never intercepts user interaction.
+ *
+ * The animation loop is started on mount and cancelled on unmount to
+ * prevent memory leaks. A resize listener keeps the canvas dimensions
+ * in sync with the viewport.
+ *
+ * @returns {JSX.Element} A full-viewport `<canvas>` element.
+ */
 const LavaLamp = () => {
     const canvasRef = useRef(null)
 

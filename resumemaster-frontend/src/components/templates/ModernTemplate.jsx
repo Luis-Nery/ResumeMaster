@@ -1,3 +1,24 @@
+/**
+ * Modern two-column resume template with a coloured sidebar and a white
+ * content panel. The sidebar contains the candidate's name, contact details,
+ * and skills; the right panel holds summary, work experience, projects, and
+ * education.
+ *
+ * Experience entries are highlighted with a left accent border. Skills inside
+ * the sidebar support `horizontal` and `vertical`/`columns` display modes
+ * (columns are treated as vertical in the sidebar).
+ *
+ * @param {object}  props
+ * @param {object}  props.resumeData      - Full resume data object.
+ * @param {string}  [props.accentColor='#4f46e5'] - CSS colour used for the sidebar
+ *                                          background and accent borders.
+ * @param {string}  [props.font='Arial, sans-serif'] - CSS font-family for the document.
+ * @param {object}  props.fontSizes        - Object with keys `base`, `title`, `name`,
+ *                                          `small`, `label` mapping to CSS sizes.
+ * @param {string}  props.padding          - CSS shorthand padding for the right content panel.
+ * @param {string}  props.sectionSpacing   - CSS margin-bottom between resume sections.
+ * @returns {JSX.Element} A white/sidebar two-column resume document.
+ */
 const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sans-serif', fontSizes, padding, sectionSpacing }) => {
     const { personalInfo, summary, experience, education, skills } = resumeData
 
@@ -25,6 +46,13 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         ? skills.some(Boolean)
         : skillsData.categories.some(c => c.items.some(Boolean))
 
+    /**
+     * Renders skills inside the sidebar. The `columns` display mode is
+     * treated as `vertical` since the narrow sidebar width makes a grid
+     * impractical.
+     *
+     * @returns {JSX.Element} Rendered skills block styled for the sidebar.
+     */
     const renderSkills = () => {
         const {displayMode, bulletStyle, separator, categories} = skillsData
         const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '
@@ -64,7 +92,16 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         )
     }
 
-    // ─── Shared entry renderer ────────────────────────────────────────────────
+    /**
+     * Renders a single work or project experience entry with a left accent
+     * border. The last entry in the list omits the bottom margin.
+     *
+     * @param {object} exp   - An experience object from `resumeData.experience`.
+     * @param {number} idx   - Index of this entry in its list.
+     * @param {Array}  arr   - The full list this entry belongs to (used to
+     *                         determine whether it is the last item).
+     * @returns {JSX.Element} A styled entry block with accent border.
+     */
     const renderEntry = (exp, idx, arr) => {
         const isLast = idx === arr.length - 1
         return (
@@ -100,6 +137,12 @@ const ModernTemplate = ({ resumeData, accentColor = '#4f46e5', font = 'Arial, sa
         )
     }
 
+    /**
+     * Returns a styled `<h2>` used as a section heading in the right panel.
+     *
+     * @param {string} text - The section heading text.
+     * @returns {JSX.Element} An uppercase, letter-spaced heading element.
+     */
     const sectionTitle = (text) => (
         <h2 style={{fontSize: fs.label, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', color: accentColor, marginBottom: '12px', fontFamily: 'Arial, sans-serif'}}>
             {text}

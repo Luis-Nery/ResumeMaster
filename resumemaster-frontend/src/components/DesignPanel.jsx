@@ -48,8 +48,29 @@ const fontSizeOptions = [
     { id: 'large', name: 'Large', size: '16px' },
 ]
 
+/**
+ * Side panel for customising the visual appearance of the resume.
+ * Provides four tabbed sections — Styles (template), Fonts, Colors,
+ * and Spacing — each of which calls `onUpdate` with the changed field
+ * and its new value. No local state is kept: the parent owns all
+ * design fields through `resumeData`.
+ *
+ * @param {object}   props
+ * @param {object}   props.resumeData           - Current resume data including design fields
+ *                                                (`template`, `font`, `fontSize`, `accentColor`,
+ *                                                `padding`, `sectionSpacing`, `designTab`).
+ * @param {Function} props.onUpdate             - Callback `(field: string, value: any) => void`
+ *                                                invoked whenever the user changes a design setting.
+ * @returns {JSX.Element} The tabbed design-options panel.
+ */
 const DesignPanel = ({ resumeData, onUpdate }) => {
     const activeTab = resumeData.designTab || 'styles'
+
+    /**
+     * Switches the active design tab by writing `designTab` into resume data.
+     *
+     * @param {string} tab - One of `'styles'`, `'fonts'`, `'colors'`, `'spacing'`.
+     */
     const setTab = (tab) => onUpdate('designTab', tab)
 
     return (

@@ -2,6 +2,18 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import LavaLamp from '../components/LavaLamp'
 
+/**
+ * Public marketing landing page shown at `/`. Contains:
+ * - Hero section with animated fade-in, headline, and CTA buttons.
+ * - A browser-chrome mockup that previews the resume editor UI.
+ * - A feature grid describing the four main product capabilities.
+ * - A bottom CTA banner linking to registration.
+ *
+ * The LavaLamp background is rendered at reduced opacity (0.35) so it
+ * doesn't overwhelm the foreground content.
+ *
+ * @returns {JSX.Element} The full landing page layout.
+ */
 const LandingPage = () => {
     const navigate = useNavigate()
     const heroRef = useRef(null)

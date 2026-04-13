@@ -1,5 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
 
+/**
+ * Classic single-column resume template with a centred header, a thick
+ * accent-coloured underline beneath the name, and uppercase section headers.
+ *
+ * The contact line is auto-shrunk when it overflows the available width so
+ * it always fits on one line. Experience entries are split into separate
+ * "Work Experience" and "Projects" sections based on their `type` field.
+ * Skills support `horizontal`, `vertical`, and `columns` display modes.
+ *
+ * @param {object}  props
+ * @param {object}  props.resumeData      - Full resume data (personalInfo, summary,
+ *                                          experience, education, skills, etc.).
+ * @param {string}  [props.accentColor='#1a1a1a'] - CSS colour used for section
+ *                                          headers and decorative borders.
+ * @param {string}  [props.font='Georgia, serif'] - CSS font-family for the document.
+ * @param {object}  props.fontSizes        - Object with keys `base`, `title`, `name`,
+ *                                          `small`, `label` mapping to CSS sizes.
+ * @param {string}  props.padding          - CSS shorthand padding for the page.
+ * @param {string}  props.sectionSpacing   - CSS margin-bottom between resume sections.
+ * @returns {JSX.Element} A white, print-ready resume document.
+ */
 const ClassicTemplate = ({
                              resumeData,
                              accentColor = '#1a1a1a',
@@ -59,6 +80,13 @@ const ClassicTemplate = ({
     const workEntries = experience.filter(e => (e.type || 'work') === 'work' && (e.company || e.title))
     const projectEntries = experience.filter(e => e.type === 'project' && (e.company || e.title))
 
+    /**
+     * Renders a single work or project experience entry with title, company,
+     * date range, optional description, and bullet points.
+     *
+     * @param {object} exp - An experience object from `resumeData.experience`.
+     * @returns {JSX.Element} A styled entry block.
+     */
     const renderExperienceEntry = (exp) => (
         <div key={exp.id} style={{marginBottom: '16px'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px'}}>
@@ -103,6 +131,14 @@ const ClassicTemplate = ({
         ? skills.some(Boolean)
         : skillsData.categories.some(c => c.items.some(Boolean))
 
+    /**
+     * Renders the skills section according to the current display mode:
+     * - `horizontal` — comma/bullet/pipe-separated inline list per category.
+     * - `vertical`   — bulleted list per category.
+     * - `columns`    — CSS grid with configurable column count.
+     *
+     * @returns {JSX.Element} The rendered skills block.
+     */
     const renderSkills = () => {
         const {displayMode, bulletStyle, separator, columns, categories} = skillsData
         const sep = separator === ',' ? ', ' : separator === '|' ? '  |  ' : '  •  '

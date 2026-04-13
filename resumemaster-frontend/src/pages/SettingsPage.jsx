@@ -1,10 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+/**
+ * Account settings page accessible at `/settings`. Displays the
+ * authenticated user's email address and placeholder buttons for
+ * forthcoming features (password change, Google sign-in link). The
+ * "Danger Zone" section contains a sign-out button.
+ *
+ * @returns {JSX.Element} The settings page layout.
+ */
 const SettingsPage = () => {
     const { logout, email } = useAuth()
     const navigate = useNavigate()
 
+    /**
+     * Logs the user out via AuthContext and redirects to `/login`.
+     */
     const handleLogout = () => {
         logout()
         navigate('/login')

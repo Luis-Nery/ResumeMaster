@@ -4,6 +4,17 @@ import { useAuth } from '../context/AuthContext'
 import DeleteConfirmModal from '../components/DeleteConfirmModal'
 import api from '../services/api'
 
+/**
+ * Dashboard page that lists all resumes owned by the authenticated user.
+ * Each resume card shows the title, creation/modification dates, a
+ * completion badge, and Edit / Delete action buttons. Incomplete resumes
+ * additionally show a "Continue" button.
+ *
+ * Delete operations are guarded by {@link DeleteConfirmModal} which requires
+ * the user to type the resume title before confirming.
+ *
+ * @returns {JSX.Element} The resume list grid or an empty-state prompt.
+ */
 const DashboardPage = () => {
     const [resumes, setResumes] = useState([])
     const [loading, setLoading] = useState(true)
@@ -17,6 +28,13 @@ const DashboardPage = () => {
         fetchResumes()
     }, [])
 
+    /**
+     * Fetches the authenticated user's resumes from `GET /api/resumes/user/:id`
+     * and stores them in state.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const fetchResumes = async () => {
         try {
             const response = await api.get(`/resumes/user/${userId}`)
@@ -28,6 +46,13 @@ const DashboardPage = () => {
         }
     }
 
+    /**
+     * Deletes the resume identified by `deleteTarget.id` via
+     * `DELETE /api/resumes/:id` and removes it from local state on success.
+     *
+     * @async
+     * @returns {Promise<void>}
+     */
     const handleDelete = async () => {
         try {
             await api.delete(`/resumes/${deleteTarget.id}`)
@@ -38,6 +63,15 @@ const DashboardPage = () => {
         }
     }
 
+    /**
+     * Formats an ISO 8601 date string as a human-readable date such as
+     * "Jan 5, 2025". Appends a trailing `Z` if missing so the date is
+     * always interpreted as UTC, preventing off-by-one-day errors in some
+     * timezones. Returns `'N/A'` for falsy input.
+     *
+     * @param {string|null|undefined} dateStr - ISO date string from the API.
+     * @returns {string} Formatted date or `'N/A'`.
+     */
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A'
         const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z')

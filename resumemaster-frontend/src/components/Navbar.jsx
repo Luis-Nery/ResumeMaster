@@ -2,10 +2,22 @@ import {useNavigate, Link} from 'react-router-dom'
 import {useAuth} from '../context/AuthContext'
 import {Settings} from 'lucide-react'
 
+/**
+ * Persistent top navigation bar rendered on every page.
+ * Shows the ResumeMaster logo/wordmark and, when the user is
+ * authenticated, navigation links for Dashboard, New Resume, and Settings.
+ * The logo links to the dashboard for authenticated users and to the
+ * landing page for guests.
+ *
+ * @returns {JSX.Element} A sticky `<nav>` element at the top of the viewport.
+ */
 const Navbar = () => {
     const {logout, isAuthenticated} = useAuth()
     const navigate = useNavigate()
 
+    /**
+     * Logs the user out and redirects them to `/login`.
+     */
     const handleLogout = () => {
         logout()
         navigate('/login')
