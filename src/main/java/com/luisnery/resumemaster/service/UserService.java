@@ -1,9 +1,11 @@
 package com.luisnery.resumemaster.service;
 
+import com.luisnery.resumemaster.dto.ChangePasswordRequest;
 import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.exception.UserNotFoundException;
 import com.luisnery.resumemaster.model.User;
 import com.luisnery.resumemaster.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +17,11 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -77,6 +81,23 @@ public class UserService {
             tempUser.setLastName(updateUserRequest.getLastName());
         }
         return userRepository.save(tempUser);
+    }
+
+    /**
+     * Changes the password for a user after verifying the current password.
+     *
+     * @param id      the ID of the user
+     * @param request carries {@code currentPassword} (for verification) and {@code newPassword}
+     * @throws com.luisnery.resumemaster.exception.UserNotFoundException if no user with the given ID exists
+     * @throws IllegalArgumentException if {@code currentPassword} does not match the stored hash
+     */
+    public void changePassword(Long id, ChangePasswordRequest request) {
+        User user = getUserById(id);
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Current password is incorrect");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     /**

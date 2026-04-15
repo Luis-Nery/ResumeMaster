@@ -1,5 +1,6 @@
 package com.luisnery.resumemaster.controller;
 
+import com.luisnery.resumemaster.dto.ChangePasswordRequest;
 import com.luisnery.resumemaster.dto.UpdateUserRequest;
 import com.luisnery.resumemaster.dto.UserResponse;
 import com.luisnery.resumemaster.model.User;
@@ -78,6 +79,26 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@Parameter(description = "User ID") @PathVariable Long id, @Valid @RequestBody UpdateUserRequest request) {
         User updatedUser = userService.updateUser(id,request);
         return ResponseEntity.ok(UserResponse.fromEntity(updatedUser));
+    }
+
+    /**
+     * Changes the password for the specified user after verifying the current password.
+     *
+     * @param id      the ID of the user
+     * @param request the current and new passwords
+     * @return 204 No Content on success, 400 if current password is wrong, 404 if not found
+     */
+    @Operation(summary = "Change password", description = "Verifies the current password then replaces it with the new one")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Password changed successfully"),
+        @ApiResponse(responseCode = "400", description = "Current password is incorrect or validation failed"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(@Parameter(description = "User ID") @PathVariable Long id,
+                                               @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(id, request);
+        return ResponseEntity.noContent().build();
     }
 
     /**
