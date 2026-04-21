@@ -92,15 +92,22 @@ Swagger UI at `http://localhost:8080/swagger-ui/index.html`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/register` | Register new user, returns JWT |
 | POST | `/api/auth/login` | Login, returns JWT |
-| GET | `/api/resumes/user/{userId}` | Get all resumes for user |
+| GET | `/api/users` | Get all users |
+| GET | `/api/users/{id}` | Get user by ID |
+| PUT | `/api/users/{id}` | Update user profile |
+| PUT | `/api/users/{id}/password` | Change password |
+| DELETE | `/api/users/{id}` | Delete user |
+| GET | `/api/resumes/user/{userId}` | Get all resumes for a user |
+| GET | `/api/resumes/{id}` | Get resume by ID |
 | POST | `/api/resumes` | Create resume |
 | PUT | `/api/resumes/{id}` | Update resume |
 | DELETE | `/api/resumes/{id}` | Delete resume |
 | POST | `/api/ai/analyze` | AI resume analysis |
-| POST | `/api/ai/rewrite` | AI bullet rewriter |
+| POST | `/api/ai/rewrite` | AI bullet rewriter (3 variations) |
 | POST | `/api/ai/match` | ATS job match score |
+| POST | `/api/pdf/generate` | Generate PDF from resume HTML |
 
 ---
 
