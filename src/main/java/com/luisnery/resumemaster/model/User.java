@@ -34,9 +34,17 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /** BCrypt-hashed password. Never stored in plain text. */
-    @Column(nullable = false)
+    /** BCrypt-hashed password. Never stored in plain text. Null for OAuth2-only accounts. */
+    @Column(nullable = true)
     private String passwordHash;
+
+    /** Google subject ID for OAuth2 users. Null for local accounts. */
+    @Column(nullable = true)
+    private String googleId;
+
+    /** Authentication provider: "local" for password-based, "google" for OAuth2. */
+    @Column(nullable = true)
+    private String authProvider = "local";
 
     /** Optional first name for display purposes. */
     @Column(nullable = true)

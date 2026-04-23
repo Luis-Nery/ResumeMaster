@@ -101,6 +101,89 @@ public class UserService {
     }
 
     /**
+     * Finds an existing user by Google email (case-insensitive) or creates a new one.
+     * Used for the login / register flow where first-time Google sign-up must succeed.
+     * The existing user's {@code authProvider} is never changed; new users get
+     * {@code authProvider="google"} and no password hash.
+     *
+     * @param googleEmail the email returned by Google
+     * @param name        the full name returned by Google (may be null)
+     * @param googleId    the Google subject ID
+     * @return the existing user (with their original ID) or a newly created one
+     */
+    public User findOrCreateOAuth2User(String googleEmail, String name, String googleId) {
+        return userRepository.findByEmailIgnoreCase(googleEmail)
+                .map(user -> {
+                    if (user.getGoogleId() == null) {
+                        user.setGoogleId(googleId);
+                        return userRepository.save(user);
+                    }
+                    return user;
+                })
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(googleEmail);
+                    newUser.setGoogleId(googleId);
+                    newUser.setAuthProvider("google");
+                    if (name != null && !name.isBlank()) {
+                        String[] parts = name.split(" ", 2);
+                        newUser.setFirstName(parts[0]);
+                        if (parts.length > 1) {
+                            newUser.setLastName(parts[1]);
+                        }
+                    }
+                    return userRepository.save(newUser);
+                });
+    }
+
+    /**
+     * Looks up an existing user by Google email (case-insensitive) and links their googleId
+     * if not already set. Returns {@code null} when no account with that email exists —
+     * the caller is responsible for redirecting with an error rather than creating a new user.
+     * The user's {@code authProvider} is never changed.
+     *
+     * @param googleEmail the email returned by Google
+     * @param googleId    the Google subject ID
+     * @return the existing {@link User} with their original ID, or {@code null} if not found
+     */
+    public User findExistingOAuth2User(String googleEmail, String googleId) {
+        return userRepository.findByEmailIgnoreCase(googleEmail)
+                .map(user -> {
+                    // Never change authProvider — keep whatever the user originally registered with.
+                    if (user.getGoogleId() == null) {
+                        user.setGoogleId(googleId);
+                        return userRepository.save(user);
+                    }
+                    return user;
+                })
+                .orElse(null);
+    }
+
+    /**
+     * Links a Google account to an existing user, identified by their internal ID.
+     * The Google email must match the user's registered email (case-insensitive); if it
+     * doesn't, {@code null} is returned and no changes are made. The {@code googleId} is
+     * only written if the user does not already have one.
+     *
+     * @param userId      the ID of the currently authenticated user initiating the link
+     * @param googleId    the Google subject ID returned by the OAuth2 flow
+     * @param googleEmail the email returned by Google, used to verify identity
+     * @return the updated {@link User}, or {@code null} if the emails do not match
+     * @throws com.luisnery.resumemaster.exception.UserNotFoundException if no user with the given ID exists
+     */
+    public User linkGoogleAccount(Long userId, String googleId, String googleEmail) {
+        User user = getUserById(userId);
+        if (!user.getEmail().equalsIgnoreCase(googleEmail)) {
+            return null;
+        }
+        if (user.getGoogleId() == null) {
+            user.setGoogleId(googleId);
+            userRepository.save(user);
+        }
+        return user;
+    }
+
+    /**
      * Deletes a user by their ID.
      *
      * @param id the ID of the user to delete

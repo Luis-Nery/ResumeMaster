@@ -68,7 +68,7 @@ class UserControllerTest {
         fakeUser.setLastName("Nery");
         fakeUser.setPasswordHash("password123");
 
-        fakeUserResponse = new UserResponse(1L, "Luis", "Nery", "luis@test.com", LocalDateTime.now());
+        fakeUserResponse = new UserResponse(1L, "Luis", "Nery", "luis@test.com", LocalDateTime.now(), null);
     }
 
     /**

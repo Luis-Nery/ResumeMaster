@@ -31,6 +31,9 @@ public class UserResponse {
     /** The timestamp when the account was created. */
     private LocalDateTime createdAt;
 
+    /** The Google subject ID if the account is linked to Google; {@code null} otherwise. */
+    private String googleId;
+
     /**
      * Converts a {@link com.luisnery.resumemaster.model.User} entity to a {@link UserResponse}.
      *
@@ -42,7 +45,8 @@ public class UserResponse {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getCreatedAt());
+                user.getCreatedAt(),
+                user.getGoogleId());
     }
 
 

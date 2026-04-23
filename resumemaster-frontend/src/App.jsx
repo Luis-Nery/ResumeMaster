@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage'
 import SettingsPage from './pages/SettingsPage'
 import ResumeFormPage from './pages/ResumeFormPage'
 import LandingPage from './pages/LandingPage'
+import OAuth2CallbackPage from './pages/OAuth2CallbackPage'
 import Navbar from './components/Navbar'
 
 /**
@@ -55,6 +56,7 @@ const App = () => {
                         <SettingsPage/>
                     </ProtectedRoute>
                 }/>
+                <Route path="/oauth2/callback" element={<OAuth2CallbackPage/>}/>
                 <Route path="/" element={<LandingPage/>}/>
             </Routes>
         </div>

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 
@@ -12,7 +12,13 @@ import api from '../services/api'
  */
 const SettingsPage = () => {
     const { logout, email, userId } = useAuth()
+    const googleOAuthUrl = `${import.meta.env.VITE_API_ORIGIN}/oauth2/authorization/google?mode=link&linkUserId=${userId}`
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+
+    const [googleId, setGoogleId] = useState(null)
+    const [googleLoading, setGoogleLoading] = useState(true)
+    const [googleError, setGoogleError] = useState('')
 
     const [showPasswordForm, setShowPasswordForm] = useState(false)
     const [currentPassword, setCurrentPassword] = useState('')
@@ -21,6 +27,23 @@ const SettingsPage = () => {
     const [passwordSuccess, setPasswordSuccess] = useState('')
     const [passwordError, setPasswordError] = useState('')
     const [passwordLoading, setPasswordLoading] = useState(false)
+
+    useEffect(() => {
+        api.get(`/users/${userId}`)
+            .then(res => setGoogleId(res.data.googleId ?? null))
+            .catch(() => {})
+            .finally(() => setGoogleLoading(false))
+    }, [userId])
+
+    useEffect(() => {
+        if (searchParams.get('error') !== 'email_mismatch') return
+        const googleEmail = searchParams.get('googleEmail') ?? ''
+        setGoogleError(
+            `The Google account you selected (${googleEmail}) doesn't match your account email. ` +
+            `Please sign in with the Google account associated with your email or create a new account ` +
+            `by signing in solely through Google through the signup page.`
+        )
+    }, [])
 
     /**
      * Logs the user out via AuthContext and redirects to `/login`.
@@ -210,33 +233,64 @@ const SettingsPage = () => {
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-4">
-                        <div>
-                            <p className="text-sm font-medium" style={{ color: '#f0f0ff' }}>
-                                Google Sign In
-                            </p>
-                            <p className="text-xs mt-1" style={{ color: '#8b8ba7' }}>
-                                Link your Google account
-                            </p>
-                        </div>
-                        <button
-                            className="px-4 py-2 rounded-lg text-xs font-medium transition"
-                            style={{
-                                backgroundColor: '#7c3aed22',
-                                border: '1px solid #7c3aed44',
-                                color: '#a78bfa',
-                            }}
-                            onMouseEnter={e => {
-                                e.target.style.backgroundColor = '#7c3aed33'
-                                e.target.style.color = '#c4b5fd'
-                            }}
-                            onMouseLeave={e => {
-                                e.target.style.backgroundColor = '#7c3aed22'
-                                e.target.style.color = '#a78bfa'
-                            }}
+                    {googleError && (
+                        <div
+                            className="mt-4 px-4 py-3 rounded-lg text-xs cursor-pointer"
+                            style={{ backgroundColor: '#2a1a1a', border: '1px solid #ef4444', color: '#ef4444' }}
+                            onClick={() => setGoogleError('')}
                         >
-                            Coming soon
-                        </button>
+                            {googleError}
+                        </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-4">
+                        <div className="flex items-center gap-3">
+                            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+                                <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                            </svg>
+                            <div>
+                                <p className="text-sm font-medium" style={{ color: '#f0f0ff' }}>
+                                    Google
+                                </p>
+                                <p className="text-xs mt-1" style={{ color: '#8b8ba7' }}>
+                                    {googleLoading ? 'Checking…' : googleId ? 'Account linked' : 'Link your Google account'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {googleLoading ? null : googleId ? (
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
+                                 style={{ backgroundColor: '#0f2a1a', border: '1px solid #34d39933' }}>
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6l3 3 5-5" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                <span className="text-xs font-medium" style={{ color: '#34d399' }}>Synced</span>
+                            </div>
+                        ) : (
+                            <a
+                                href={googleOAuthUrl}
+                                className="px-4 py-2 rounded-lg text-xs font-medium transition"
+                                style={{
+                                    backgroundColor: '#7c3aed22',
+                                    border: '1px solid #7c3aed44',
+                                    color: '#a78bfa',
+                                    textDecoration: 'none',
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.backgroundColor = '#7c3aed33'
+                                    e.currentTarget.style.color = '#c4b5fd'
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.backgroundColor = '#7c3aed22'
+                                    e.currentTarget.style.color = '#a78bfa'
+                                }}
+                            >
+                                Connect Google
+                            </a>
+                        )}
                     </div>
                 </div>
 

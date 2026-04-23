@@ -53,6 +53,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        const url = error.config?.url ?? '';
+        const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register');
+        if (isAuthEndpoint) {
+            return Promise.reject(error);
+        }
         if (error.response?.status === 401) {
             if (logoutHandler) {
                 logoutHandler();

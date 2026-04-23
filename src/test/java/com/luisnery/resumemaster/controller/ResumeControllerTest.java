@@ -75,7 +75,7 @@ public class ResumeControllerTest {
         fakeResume.setContent("Mocked Content");
         fakeResume.setUser(fakeUser);
         fakeUserResponse = new UserResponse(1L, "Luis", "Nery",
-                "luis@test.com", LocalDateTime.now());
+                "luis@test.com", LocalDateTime.now(), null);
         fakeResumeResponse = new ResumeResponse(1L, "Mocked Resume", "Mocked Content"
                 , LocalDateTime.now(), LocalDateTime.now(), fakeUserResponse,false,1);
     }

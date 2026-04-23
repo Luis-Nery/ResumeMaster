@@ -14,12 +14,22 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
-     * Finds a user by their email address.
+     * Finds a user by their email address (exact, case-sensitive match).
      *
      * @param email the email to search for
      * @return an {@link Optional} containing the user if found, or empty otherwise
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * Finds a user by email using a case-insensitive comparison.
+     * Used during OAuth2 login so that email casing differences between
+     * what was registered and what Google returns never create a duplicate account.
+     *
+     * @param email the email to search for
+     * @return an {@link Optional} containing the user if found, or empty otherwise
+     */
+    Optional<User> findByEmailIgnoreCase(String email);
 
     /**
      * Checks whether a user with the given email address already exists.
