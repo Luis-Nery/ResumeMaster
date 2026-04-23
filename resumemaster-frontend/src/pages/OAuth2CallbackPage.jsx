@@ -18,10 +18,14 @@ const OAuth2CallbackPage = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
+        const allParams = Object.fromEntries(searchParams.entries())
+        console.log('[OAuth2Callback] query params received:', allParams)
+
         const error = searchParams.get('error')
 
         if (error === 'email_mismatch') {
             const googleEmail = searchParams.get('googleEmail') ?? ''
+            console.log('[OAuth2Callback] email_mismatch error, googleEmail:', googleEmail)
             navigate(
                 `/settings?error=email_mismatch&googleEmail=${encodeURIComponent(googleEmail)}`,
                 { replace: true }
@@ -33,6 +37,7 @@ const OAuth2CallbackPage = () => {
         const userId = searchParams.get('userId')
 
         if (!token || !userId) {
+            console.log('[OAuth2Callback] missing token or userId, redirecting to /login')
             navigate('/login', { replace: true })
             return
         }
@@ -42,8 +47,9 @@ const OAuth2CallbackPage = () => {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]))
             email = payload.sub ?? null
-        } catch {
-            // Malformed token — let the protected routes handle the redirect.
+            console.log('[OAuth2Callback] token decoded successfully, email:', email, 'userId:', userId)
+        } catch (err) {
+            console.error('[OAuth2Callback] failed to decode token:', err)
         }
 
         login(token, userId, email)
