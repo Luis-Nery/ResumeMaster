@@ -1,4 +1,4 @@
-# ResumeMaster
+    # ResumeMaster
 
 An AI-powered resume builder that helps job seekers create, optimize, and tailor their resumes with real-time AI feedback.
 
